@@ -4,7 +4,7 @@
 <!--
   Reusable sidebar navigation fragment.
   Usage: <div th:replace="~{fragments/navbar :: sidebar(activeMenu='dashboard')}"></div>
-  activeMenu values: 'dashboard', 'leads', 'customers', 'deals', 'users'
+  activeMenu values: 'dashboard', 'leads', 'customers', 'deals', 'tasks', 'reports', 'users'
 -->
 <body>
 
@@ -56,6 +56,12 @@
                th:classappend="${activeMenu == 'tasks'} ? ' active' : ''">
                 <span class="nav-icon">✅</span>
                 <span>Tasks</span>
+            </a>
+            <a th:href="@{/reports}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'reports'} ? ' active' : ''">
+                <span class="nav-icon">📈</span>
+                <span>Reports</span>
             </a>
         </div>
 

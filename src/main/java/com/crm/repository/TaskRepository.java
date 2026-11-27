@@ -65,4 +65,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     long countByStatusIn(List<TaskStatus> statuses);
 
     long countByAssignedToIdAndStatusIn(Long assignedToId, List<TaskStatus> statuses);
+
+    /** Admin-only per-rep rollup of open tasks. */
+    @Query("""
+        SELECT t.assignedTo.id, COUNT(t) FROM Task t
+        WHERE t.assignedTo IS NOT NULL AND t.status IN :statuses
+        GROUP BY t.assignedTo.id
+        """)
+    List<Object[]> countOpenByRepGrouped(@Param("statuses") List<TaskStatus> statuses);
 }

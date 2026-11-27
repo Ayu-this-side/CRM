@@ -56,4 +56,20 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     long countByStatus(CustomerStatus status);
 
     long countByAssignedRepIdAndStatus(Long repId, CustomerStatus status);
+
+    // ---- Dashboard reporting queries (role-scoped via repId = null for Admin) ----
+
+    @Query("""
+        SELECT COUNT(c) FROM Customer c
+        WHERE (:repId IS NULL OR c.assignedRep.id = :repId)
+        """)
+    long countScoped(@Param("repId") Long repId);
+
+    /** Admin-only per-rep rollup. */
+    @Query("""
+        SELECT c.assignedRep.id, COUNT(c) FROM Customer c
+        WHERE c.assignedRep IS NOT NULL
+        GROUP BY c.assignedRep.id
+        """)
+    List<Object[]> countByRepGrouped();
 }

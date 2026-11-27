@@ -89,15 +89,18 @@
         </div>
     </div>
 
-    <!-- Analytics placeholder (Phase 5) -->
-    <div class="coming-soon-banner">
-        <div class="coming-soon-icon">📈</div>
-        <h3>Analytics Dashboard Coming in Phase 5</h3>
-        <p>
-            Charts powered by Chart.js — leads by status, pipeline value by stage,
-            win/loss rate, revenue this quarter, and per-rep breakdowns — will be
-            wired up in the final phase.
-        </p>
+    <!-- Analytics shortcut -->
+    <div class="card" style="padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; color: var(--text);">📈 Reports &amp; Analytics</h2>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+                    Lead conversion, pipeline value, win/loss rate, monthly and quarterly revenue,
+                    and per-rep performance — all scoped to your role.
+                </p>
+            </div>
+            <a th:href="@{/reports}" class="btn btn-primary">View Reports →</a>
+        </div>
     </div>
 
 </main>

@@ -92,17 +92,18 @@ Audit fixes applied after the initial build, so the "Complete" status is defensi
 
 ---
 
-## Phase 5 — Reporting, Testing & Polish
+## Phase 5 — Reporting, Testing & Polish (✅ Complete)
 
 **Objective:** Turn the working CRM into a demo-ready, portfolio-quality product.
 
 **Tasks:**
-- Dashboard queries: leads by status, conversion rate (overall + by source), pipeline value by stage, win/loss rate, revenue this month/quarter, per-rep breakdown (Admin only)
-- Chart.js integration on dashboard (bar/pie charts fed by JPQL/projection queries)
-- Set dashboard as post-login landing page; role-based view (rep sees own numbers, admin sees org-wide)
-- Search/filter refinement across all list views; consistent pagination
-- Unit tests (JUnit 5 + Mockito) for service layer; `@DataJpaTest` for repository layer
-- UI polish pass: consistent styling, friendly validation/error messages, empty states
-- README: setup instructions, architecture overview, and documented design decisions (e.g. polymorphic linking trade-off, DB choice)
+- [x] Dashboard queries: leads by status, conversion rate (overall + by source), pipeline value by stage, win/loss rate, revenue this month/quarter, per-rep breakdown (Admin only)
+- [x] Chart.js integration on `/reports` (doughnut + bar charts fed by the same role-scoped `DashboardReport` as the tables)
+- [x] Chart.js hosted locally under `/js/chart.umd.min.js` (no external CDN dependency)
+- [x] Dashboard remains the post-login landing page, with a shortcut to Reports and role-based figures (rep sees own numbers, admin sees org-wide)
+- [x] Search/filter refinement across all list views; consistent pagination that preserves filters
+- [x] Unit tests (JUnit 5 + Mockito) for service layer; `@DataJpaTest` with in-memory H2 for repository layer
+- [x] UI polish pass: responsive report grid, consistent styling, friendly validation/error messages, empty states
+- [x] README: setup instructions, architecture overview, and documented design decisions (polymorphic linking trade-off, DB choice, reporting scope)
 
-**Exit criteria:** Dashboard accurately reflects seeded data, core services have test coverage, and the app is presentable end-to-end for a portfolio demo or interview walkthrough.
+**Exit criteria:** Dashboard accurately reflects seeded data, core services have test coverage, and the app is presentable end-to-end for a portfolio demo or interview walkthrough. (Verified ✅ — 71 tests passing; HTTP smoke test covered rep vs admin scope, per-rep table visibility, chart data, dashboard/nav links, and local Chart.js delivery.)

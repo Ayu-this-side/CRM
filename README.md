@@ -3,7 +3,7 @@
 A Customer Relationship Management system built with **Java 21 target + Spring Boot 3.3** demonstrating:
 relational data modeling, layered architecture, Spring Security, Flyway, Thymeleaf, and role-based access.
 
-> Phases 1–4 are implemented and hardened. Phase 5 (reporting & final polish) is still to be built.
+> All five phases are implemented, hardened, and verified. The project is feature-complete.
 
 **Repository:** https://github.com/Ayu-this-side/CRM
 
@@ -13,12 +13,13 @@ relational data modeling, layered architecture, Spring Security, Flyway, Thymele
 |---|---|
 | Language | Java 21 target (builds on JDK 21+) |
 | Framework | Spring Boot 3.3.4 |
-| UI | Thymeleaf + Security Extras |
+| UI | Thymeleaf + Security Extras + Chart.js (locally hosted) |
 | Data | Spring Data JPA / Hibernate |
 | Database | PostgreSQL |
 | Migrations | Flyway |
 | Security | Spring Security (form login, BCrypt, RBAC) |
 | Mail | Spring Mail (`JavaMailSender`) + `@Scheduled` task digests |
+| Testing | JUnit 5, Mockito, `@DataJpaTest` with in-memory H2 |
 | Build | Maven 3.9+ (`mvnw` uses Maven from `PATH`) |
 
 ---
@@ -91,7 +92,7 @@ Flyway automatically runs `V1__init_users.sql`, `V2__init_leads_and_customers.sq
 when users already exist, and can be turned off completely with `-Dcrm.seed.enabled=false`
 (recommended outside local development).
 
-To run the test suite (61 tests):
+To run the test suite (71 tests):
 
 ```powershell
 .\mvnw.cmd test
@@ -118,7 +119,7 @@ http://localhost:8081
 
 ---
 
-## What You Can Do (Phases 1–4)
+## What You Can Do (Phases 1–5)
 
 | Feature | Route / Action | Role Scope |
 |---|---|---|
@@ -143,6 +144,7 @@ http://localhost:8081
 | **Log Activity** | `/communications/new` — Call / Meeting / Note against any record | Rep-scoped link validation |
 | **Send Email** | `/email/new` — SMTP send + automatic `EMAIL` activity entry; simulated and logged by default | Rep-scoped link validation |
 | **Activity Feed** | On Lead, Customer and Deal detail pages — combined task + communication timeline | Reps see only their own tasks in the feed |
+| **Reports & Analytics** | `/reports` — Chart.js charts + tables for lead funnel, source conversion, pipeline value, win/loss, monthly/quarterly revenue | Role-scoped: Admin sees org-wide + per-rep table; Rep sees own records only |
 
 ---
 
@@ -164,17 +166,21 @@ src/main/java/com/crm/
 │   ├── EmailController.java         # /email — send + auto-log email
 │   ├── HomeController.java          # / (dashboard with live metrics)
 │   ├── LeadController.java          # /leads CRUD, pipeline progression & conversion
+│   ├── ReportController.java        # /reports — role-scoped analytics dashboard
 │   ├── TaskController.java          # /tasks CRUD, My Tasks, completion
 │   └── UserController.java          # /admin/users CRUD
 ├── dto/
 │   ├── ActivityItem.java       # Unified task + communication view model
 │   ├── CommunicationLogDto.java # Bean validation for manual activity logging
+│   ├── ConversionStat.java     # Lead conversion totals + rate per source
 │   ├── CustomerDto.java        # Bean validation for Customer creation/update
+│   ├── DashboardReport.java    # All role-scoped dashboard aggregates
 │   ├── DealDto.java            # Bean validation for Deals (value, probability 0–100)
 │   ├── EmailDto.java           # Bean validation for CRM email
 │   ├── LeadConvertDto.java     # Bean validation for Lead → Customer conversion
 │   ├── LeadDto.java            # Bean validation for Lead creation/update
 │   ├── LinkedRecord.java       # Resolved display/contact details for polymorphic links
+│   ├── RepPerformance.java     # Admin-only per-rep rollup row
 │   ├── TaskDto.java            # Bean validation for follow-up tasks
 │   └── UserDto.java            # Bean validation for User accounts
 ├── entity/
@@ -199,10 +205,10 @@ src/main/java/com/crm/
 │   └── ResourceNotFoundException.java
 ├── repository/
 │   ├── CommunicationLogRepository.java # Activity feed queries by linked record
-│   ├── CustomerRepository.java # Search, filter, pagination & count queries
-│   ├── DealRepository.java     # Search, stage/filter queries & open-deal counts
-│   ├── LeadRepository.java     # Search, filter, pagination & count queries
-│   ├── TaskRepository.java     # Search, due-task, linked-record & count queries
+│   ├── CustomerRepository.java # Search, filter, pagination & reporting queries
+│   ├── DealRepository.java     # Search, stage queries, revenue & reporting aggregates
+│   ├── LeadRepository.java     # Search, filter, pagination & reporting aggregates
+│   ├── TaskRepository.java     # Search, due-task, linked-record & reporting queries
 │   └── UserRepository.java
 ├── service/
 │   ├── ActivityService.java        # Merges tasks + communication logs into a timeline
@@ -212,6 +218,7 @@ src/main/java/com/crm/
 │   ├── EmailService.java           # SMTP delivery (dev simulation) + EMAIL auto-logging
 │   ├── LeadService.java            # Lead lifecycle, pipeline validation & conversion logic
 │   ├── LinkResolver.java           # Validates polymorphic (type, id) links via owner services
+│   ├── ReportService.java          # Builds role-scoped dashboard aggregates
 │   ├── TaskService.java            # Task CRUD, My Tasks, due tasks & rep scoping
 │   └── UserService.java            # Implements UserDetailsService + user CRUD
 └── scheduler/
@@ -225,7 +232,9 @@ src/main/resources/
 │   ├── V3__harden_integrity.sql         # Optimistic locking cols + case-insensitive email uniqueness
 │   ├── V4__init_deals.sql               # Deals table, FKs, stage/value/probability checks & indexes
 │   └── V5__init_tasks_and_communications.sql # Tasks + communication logs, checks & indexes
-├── static/css/style.css                # Dark mode design system, toolbar, activity timeline
+├── static/
+│   ├── css/style.css                # Dark mode design system, toolbar, activity timeline, report grid
+│   └── js/chart.umd.min.js           # Locally hosted Chart.js 4.4.8 (no CDN at runtime)
 └── templates/
     ├── fragments/              # Reusable head, sidebar & activity feed
     ├── auth/                   # login, access-denied
@@ -237,12 +246,17 @@ src/main/resources/
     ├── tasks/                  # list, My Tasks, detail, form
     ├── communications/         # manual activity logging form
     ├── email/                  # CRM email composer
+    ├── reports/                # analytics dashboard (charts + tables)
     └── error/                  # error page
+
+src/test/resources/
+└── application.properties      # In-memory H2 config for repository slices
 
 src/test/java/com/crm/
 ├── enums/                      # LeadStatusTest, DealStageTest (pipeline rules)
+├── repository/                 # ReportingRepositoryTest (@DataJpaTest aggregation queries)
 ├── scheduler/                  # TaskDigestSchedulerTest (digest grouping)
-└── service/                    # Service unit tests (61 tests total)
+└── service/                    # Service unit tests (71 tests total)
 ```
 
 ---
@@ -263,7 +277,7 @@ src/test/java/com/crm/
 - Customers with deals cannot be deleted; deal history and the customer link are preserved.
 
 ### 3. Rep-Scoped Data Scoping
-- Sales Reps only see and interact with their own assigned leads, customers, deals, and tasks (`WHERE assigned_rep_id = :currentUserId`).
+- Sales Reps only see and interact with their own assigned leads, customers, deals, tasks, and report figures (`WHERE assigned_rep_id = :currentUserId`).
 - Admins have organization-wide visibility, can assign/reassign records across reps, and filter list views by representative.
 - Only **active `SALES_REP` accounts** may own records; blank reassignment keeps the existing owner so records cannot be orphaned.
 - Access checks are enforced at both the service layer (ownership verification) and the repository query level.
@@ -292,6 +306,19 @@ src/test/java/com/crm/
 - Error pages return real HTTP statuses (400/403/404/409/500); internal exception details stay in logs.
 - `maven-compiler-plugin` uses `annotationProcessorPaths` for Lombok and targets Java 21 bytecode; a newer JDK builds fine.
 
+### 7. Reporting & Dashboard
+- `/reports` builds a single `DashboardReport` from grouped repository queries; no reporting data is filtered client-side, so charts and tables cannot disagree about scope.
+- Admins pass `repId = null` (organisation-wide) and additionally receive a per-rep table; Sales Reps always pass their own id, and the per-rep section is removed server-side via `sec:authorize`.
+- Lead conversion rate = converted / total leads; win rate = won / (won + lost). Both return `0%` for an empty denominator rather than `NaN`.
+- Revenue metrics sum the `value` of `WON` deals by `actualCloseDate` for the current calendar month and quarter. `LOST` deals are excluded from revenue but counted for win rate.
+- Charts are fed by the same serialised report used to render the tables, and Chart.js is served locally from `/js/chart.umd.min.js` so the dashboard has no external runtime dependency.
+- All list views (Leads, Customers, Deals, Tasks) share consistent keyword filtering, rep filters, and paginated navigation that preserves active filters across pages.
+
+### 8. Testing Strategy
+- Service-layer rules (pipeline transitions, ownership, mail simulation, digest grouping, report aggregation) are covered with fast Mockito unit tests.
+- `ReportingRepositoryTest` uses `@DataJpaTest` with in-memory H2 and verifies that grouping/revenue queries produce identical organisation-wide and rep-scoped results; Flyway is disabled and Hibernate builds the schema from entities for those slices.
+- `src/test/resources/application.properties` keeps tests independent of a local PostgreSQL instance; production still uses PostgreSQL + Flyway with `ddl-auto=validate`.
+
 ---
 
 ## Build Phases
@@ -301,9 +328,11 @@ src/test/java/com/crm/
 | **1 — Foundation** | ✅ Complete | Auth, users, security, role-based navigation |
 | **2 — Leads & Customers** | ✅ Complete + hardened | Core entities, strict status pipeline, search/filters, Lead → Customer conversion, rep scoping |
 | **3 — Deal Pipeline** | ✅ Complete + hardened | Deal entity + V4 migration, stage pipeline, Won/Lost outcomes, probability, linked from Customer |
-| **4 — Tasks & Comms** | ✅ Complete + hardened | V5 migration, Task CRUD/My Tasks, activity logging, mail with dev fallback, scheduled digest, activity feed; 61 tests passing |
-| **5 — Reporting & Polish** | Pending | Analytics dashboard with Chart.js, conversion metrics, performance breakdown |
+| **4 — Tasks & Comms** | ✅ Complete + hardened | V5 migration, Task CRUD/My Tasks, activity logging, mail with dev fallback, scheduled digest, activity feed |
+| **5 — Reporting & Polish** | ✅ Complete + verified | Role-scoped Chart.js dashboard, conversion/win/revenue metrics, per-rep table, `@DataJpaTest` coverage; 71 tests passing |
 
-## What's Next (Phase 5)
+## Project Status
 
-**Phase 5 — Reporting & polish:** aggregation queries, Chart.js dashboard (role-scoped), per-rep breakdown, search/pagination consistency, `@DataJpaTest` repository coverage, final UI/README polish.
+All phases are complete. The application is ready for local demonstration: start it with
+`.\mvnw.cmd spring-boot:run`, sign in with one of the demo accounts above, and open
+`/reports` for the analytics dashboard. See `phase.md` for the original phase-by-phase plan and exit criteria.
