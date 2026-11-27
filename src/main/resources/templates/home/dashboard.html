@@ -4,14 +4,13 @@
 <head th:replace="~{fragments/head :: head(title='Dashboard')}"></head>
 <body class="app-body">
 
-<!-- Sidebar -->
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='dashboard')}"></div>
 
-<!-- Main content -->
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
+            <span class="eyebrow">Overview</span>
             <h1 class="page-title">Dashboard</h1>
             <p class="page-subtitle">
                 Welcome back, <strong th:text="${#authentication.principal.name}">User</strong> —
@@ -20,88 +19,108 @@
         </div>
         <div class="action-buttons">
             <a th:href="@{/leads/new}" class="btn btn-primary">
-                <span>+</span> New Lead
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+                New lead
             </a>
             <a th:href="@{/customers/new}" class="btn btn-secondary">
-                <span>+</span> New Customer
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+                New customer
             </a>
             <a th:href="@{/deals/new}" class="btn btn-secondary">
-                <span>+</span> New Deal
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+                New deal
             </a>
         </div>
     </div>
 
-    <!-- KPI cards -->
-    <div class="stats-grid">
-        <a th:href="@{/leads}" class="stat-card" style="text-decoration: none;">
-            <span class="stat-icon">🎯</span>
-            <div class="stat-value" th:text="${totalLeads != null ? totalLeads : 0}">0</div>
-            <div class="stat-label">Total Leads</div>
-        </a>
-        <a th:href="@{/customers}" class="stat-card" style="text-decoration: none;">
-            <span class="stat-icon">🤝</span>
-            <div class="stat-value" th:text="${activeCustomers != null ? activeCustomers : 0}">0</div>
-            <div class="stat-label">Active Customers</div>
-        </a>
-        <a th:href="@{/deals}" class="stat-card" style="text-decoration: none;">
-            <span class="stat-icon">💰</span>
-            <div class="stat-value" th:text="${openDeals != null ? openDeals : 0}">0</div>
-            <div class="stat-label">Open Deals</div>
-        </a>
-        <a th:href="@{/tasks/mine}" class="stat-card" style="text-decoration: none;">
-            <span class="stat-icon">✅</span>
-            <div class="stat-value" th:text="${openTasks != null ? openTasks : 0}">0</div>
-            <div class="stat-label">My Open Tasks</div>
-        </a>
+    <div class="metric-strip" aria-label="Workspace at a glance">
+        <div class="metric" data-reveal>
+            <span class="metric-label">Total leads</span>
+            <span class="metric-value" th:text="${totalLeads != null ? totalLeads : 0}">0</span>
+            <span class="metric-hint">All prospects in the pipeline</span>
+            <a th:href="@{/leads}" class="metric-link" aria-label="View all leads"></a>
+        </div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">Active customers</span>
+            <span class="metric-value" th:text="${activeCustomers != null ? activeCustomers : 0}">0</span>
+            <span class="metric-hint">Accounts currently active</span>
+            <a th:href="@{/customers}" class="metric-link" aria-label="View all customers"></a>
+        </div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">Open deals</span>
+            <span class="metric-value" th:text="${openDeals != null ? openDeals : 0}">0</span>
+            <span class="metric-hint">Opportunities not yet closed</span>
+            <a th:href="@{/deals}" class="metric-link" aria-label="View all deals"></a>
+        </div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">My open tasks</span>
+            <span class="metric-value" th:text="${openTasks != null ? openTasks : 0}">0</span>
+            <span class="metric-hint">Follow-ups assigned to you</span>
+            <a th:href="@{/tasks/mine}" class="metric-link" aria-label="View my open tasks"></a>
+        </div>
     </div>
 
-    <!-- Quick Navigation / Overview -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;">
-        <div class="card" style="padding: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <h2 style="font-size: 16px; font-weight: 600; color: var(--text);">🎯 Lead Management</h2>
-                <a th:href="@{/leads}" class="btn btn-sm btn-secondary">View All Leads →</a>
-            </div>
-            <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6;">
+    <div class="ruled-grid">
+        <section class="ruled-section" aria-labelledby="lead-section-title">
+            <h2 id="lead-section-title">
+                <svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>
+                Lead management
+            </h2>
+            <p class="text-block">
                 Capture inbound leads, track progress through the status pipeline
-                (<span class="badge badge-blue">New</span> → <span class="badge badge-yellow">Contacted</span> → <span class="badge badge-purple">Qualified</span>),
+                (<span class="badge badge-blue">New</span>
+                <span class="badge badge-yellow">Contacted</span>
+                <span class="badge badge-purple">Qualified</span>),
                 and convert qualified opportunities into customers with one click.
             </p>
-            <div style="display: flex; gap: 10px;">
-                <a th:href="@{/leads/new}" class="btn btn-sm btn-primary">+ Create Lead</a>
-                <a th:href="@{/leads?status=QUALIFIED}" class="btn btn-sm btn-secondary">Qualified Leads</a>
+            <div class="flex">
+                <a th:href="@{/leads/new}" class="btn btn-sm btn-primary">Create lead</a>
+                <a th:href="@{/leads?status=QUALIFIED}" class="btn btn-sm btn-secondary">Qualified leads</a>
+                <a th:href="@{/leads}" class="list-link">
+                    View all
+                    <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                </a>
             </div>
-        </div>
+        </section>
 
-        <div class="card" style="padding: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <h2 style="font-size: 16px; font-weight: 600; color: var(--text);">🤝 Customer Management</h2>
-                <a th:href="@{/customers}" class="btn btn-sm btn-secondary">View All Customers →</a>
-            </div>
-            <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6;">
+        <section class="ruled-section" aria-labelledby="customer-section-title">
+            <h2 id="customer-section-title">
+                <svg class="icon" aria-hidden="true"><use href="#i-users"/></svg>
+                Customer management
+            </h2>
+            <p class="text-block">
                 Manage customer relationships originated from converted leads or created directly.
                 Track contact info, assigned account reps, and relationship history.
             </p>
-            <div style="display: flex; gap: 10px;">
-                <a th:href="@{/customers/new}" class="btn btn-sm btn-primary">+ Create Customer</a>
-                <a th:href="@{/customers?status=ACTIVE}" class="btn btn-sm btn-secondary">Active Accounts</a>
+            <div class="flex">
+                <a th:href="@{/customers/new}" class="btn btn-sm btn-primary">Create customer</a>
+                <a th:href="@{/customers?status=ACTIVE}" class="btn btn-sm btn-secondary">Active accounts</a>
+                <a th:href="@{/customers}" class="list-link">
+                    View all
+                    <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                </a>
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Analytics shortcut -->
-    <div class="card" style="padding: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <section class="ruled-section" aria-labelledby="reports-section-title">
+        <div class="between">
             <div>
-                <h2 style="font-size: 16px; font-weight: 600; color: var(--text);">📈 Reports &amp; Analytics</h2>
-                <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
-                    Lead conversion, pipeline value, win/loss rate, monthly and quarterly revenue,
-                    and per-rep performance — all scoped to your role.
+                <h2 id="reports-section-title">
+                    <svg class="icon" aria-hidden="true"><use href="#i-chart"/></svg>
+                    Reports &amp; analytics
+                </h2>
+                <p class="text-block">
+                    Lead conversion, pipeline value, win/loss rate, revenue, and per-rep performance —
+                    all scoped to your role.
                 </p>
             </div>
-            <a th:href="@{/reports}" class="btn btn-primary">View Reports →</a>
+            <a th:href="@{/reports}" class="btn btn-secondary">
+                View reports
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            </a>
         </div>
-    </div>
+    </section>
 
 </main>
 

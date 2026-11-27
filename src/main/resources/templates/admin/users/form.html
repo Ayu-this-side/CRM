@@ -7,7 +7,7 @@
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='users')}"></div>
 
 <!-- Main content -->
-<main class="main-content">
+<main class="main-content" id="main">
 
     <!-- Page header -->
     <div class="page-header">
@@ -18,19 +18,20 @@
                 Create a new user account.
             </p>
         </div>
-        <a th:href="@{/admin/users}" class="btn btn-secondary">← Back to Users</a>
+        <a th:href="@{/admin/users}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Users</a>
     </div>
 
     <!-- Inline error (from service, e.g. duplicate email) -->
     <div th:if="${errorMessage}" class="alert alert-danger" id="formError">
-        ✗ <span th:text="${errorMessage}"></span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-x-circle"/></svg>
+    <span th:text="${errorMessage}"></span>
     </div>
 
     <!-- Form card -->
     <div class="card form-card">
         <!--
-          POST to /admin/users        → createUser
-          POST to /admin/users/{id}   → updateUser
+          POST to /admin/users        — createUser
+          POST to /admin/users/{id}   — updateUser
         -->
         <form th:action="${editMode} ? @{/admin/users/{id}(id=${userId})} : @{/admin/users}"
               method="post"
@@ -74,13 +75,19 @@
                         <span th:if="${!editMode}">*</span>
                         <span th:if="${editMode}" class="label-hint">(blank = keep existing)</span>
                     </label>
-                    <input type="password"
-                           id="password"
-                           th:field="*{password}"
-                           class="form-control"
-                           placeholder="••••••••"
-                           autocomplete="new-password"
-                           th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"/>
+                    <div class="password-wrap">
+                        <input type="password"
+                               id="password"
+                               th:field="*{password}"
+                               class="form-control"
+                               placeholder="••••••••"
+                               autocomplete="new-password"
+                               th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"/>
+                        <button type="button" class="password-toggle" data-password-toggle="password"
+                                aria-label="Show password" aria-pressed="false" aria-controls="password">
+                            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-eye"/></svg>
+                        </button>
+                    </div>
                     <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                 </div>
                 <div class="form-group">

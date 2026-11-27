@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='deals')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
@@ -16,13 +16,13 @@
             </p>
         </div>
         <div>
-            <a th:href="${editMode ? '/deals/' + dealId : '/deals'}" class="btn btn-secondary">← Back</a>
+            <a th:href="${editMode ? '/deals/' + dealId : '/deals'}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
         </div>
     </div>
 
     <!-- Error Banner -->
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 
@@ -89,7 +89,7 @@
                                 th:disabled="${st.closed}">Prospecting</option>
                     </select>
                     <span th:if="${#fields.hasErrors('stage')}" th:errors="*{stage}" class="field-error">Stage is required</span>
-                    <small style="font-size: 11.5px; color: var(--text-faint);">
+                    <small class="cell-sub">
                         Won/Lost are set through the stage actions on the deal detail page.
                     </small>
                 </div>
@@ -107,7 +107,7 @@
                            class="form-control"
                            th:classappend="${#fields.hasErrors('probability')} ? ' is-invalid' : ''"/>
                     <span th:if="${#fields.hasErrors('probability')}" th:errors="*{probability}" class="field-error">0–100 only</span>
-                    <small style="font-size: 11.5px; color: var(--text-faint);">
+                    <small class="cell-sub">
                         Suggested from the stage; change it if your confidence differs.
                     </small>
                 </div>

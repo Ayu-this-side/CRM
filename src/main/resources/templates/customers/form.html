@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='customers')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
@@ -17,14 +17,14 @@
         </div>
         <div>
             <a th:href="${editMode ? '/customers/' + customerId : '/customers'}" class="btn btn-secondary">
-                ← Back
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back
             </a>
         </div>
     </div>
 
     <!-- Error Banner -->
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 

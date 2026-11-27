@@ -2,101 +2,154 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <!--
-  Reusable sidebar navigation fragment.
+  Reusable app chrome: skip link, icon sprite, navigation rail, backdrop and command bar.
   Usage: <div th:replace="~{fragments/navbar :: sidebar(activeMenu='dashboard')}"></div>
   activeMenu values: 'dashboard', 'leads', 'customers', 'deals', 'tasks', 'reports', 'users'
 -->
 <body>
 
-<aside th:fragment="sidebar(activeMenu)" class="sidebar">
+<div th:fragment="sidebar(activeMenu)">
 
-    <!-- Brand -->
-    <div class="sidebar-brand">
-        <span class="brand-icon">⚡</span>
-        <span class="brand-text">CRM Pro</span>
-    </div>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div th:replace="~{fragments/icons :: sprite}"></div>
 
-    <!-- Navigation -->
-    <nav class="sidebar-nav">
+    <aside id="app-sidebar" class="sidebar" aria-label="Primary navigation">
 
-        <!-- Overview section -->
-        <div class="nav-section">
-            <span class="nav-section-label">Overview</span>
-            <a th:href="@{/}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
-                <span class="nav-icon">📊</span>
-                <span>Dashboard</span>
-            </a>
+        <div class="sidebar-brand">
+            <span class="brand-mark">
+                <svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg>
+            </span>
+            <span class="brand-copy">
+                <span class="brand-name">CRM<em>Pro</em></span>
+                <span class="brand-caption">Sales workspace</span>
+            </span>
+            <button type="button" class="sidebar-close" data-nav-close aria-label="Close navigation">
+                <svg class="icon" aria-hidden="true"><use href="#i-close"/></svg>
+            </button>
         </div>
 
-        <!-- CRM section -->
-        <div class="nav-section">
-            <span class="nav-section-label">CRM</span>
-            <a th:href="@{/leads}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'leads'} ? ' active' : ''">
-                <span class="nav-icon">🎯</span>
-                <span>Leads</span>
-            </a>
-            <a th:href="@{/customers}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'customers'} ? ' active' : ''">
-                <span class="nav-icon">🤝</span>
-                <span>Customers</span>
-            </a>
-            <a th:href="@{/deals}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'deals'} ? ' active' : ''">
-                <span class="nav-icon">💰</span>
-                <span>Deals</span>
-            </a>
-            <a th:href="@{/tasks}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'tasks'} ? ' active' : ''">
-                <span class="nav-icon">✅</span>
-                <span>Tasks</span>
-            </a>
-            <a th:href="@{/reports}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'reports'} ? ' active' : ''">
-                <span class="nav-icon">📈</span>
-                <span>Reports</span>
-            </a>
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <div class="nav-section">
+                <span class="nav-section-label">Overview</span>
+                <a th:href="@{/}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'dashboard'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Pipeline</span>
+                <a th:href="@{/leads}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'leads'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'leads'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>
+                    <span>Leads</span>
+                </a>
+                <a th:href="@{/customers}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'customers'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'customers'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-users"/></svg>
+                    <span>Customers</span>
+                </a>
+                <a th:href="@{/deals}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'deals'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'deals'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-briefcase"/></svg>
+                    <span>Deals</span>
+                </a>
+                <a th:href="@{/tasks}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'tasks'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'tasks'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-check-square"/></svg>
+                    <span>Tasks</span>
+                </a>
+                <a th:href="@{/reports}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'reports'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'reports'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-chart"/></svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="nav-section" sec:authorize="hasRole('ADMIN')">
+                <span class="nav-section-label">Administration</span>
+                <a th:href="@{/admin/users}"
+                   class="nav-item"
+                   th:classappend="${activeMenu == 'users'} ? ' active' : ''"
+                   th:attr="aria-current=${activeMenu == 'users'} ? 'page' : null">
+                    <svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>
+                    <span>Users</span>
+                </a>
+            </div>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span class="avatar" aria-hidden="true"
+                      th:text="${#authentication.principal.name.substring(0,1).toUpperCase()}">A</span>
+                <span class="user-details">
+                    <span class="user-name" th:text="${#authentication.principal.name}">Admin</span>
+                    <span class="user-role" th:text="${#authentication.principal.role.displayName}">Admin</span>
+                </span>
+            </div>
+            <form th:action="@{/logout}" method="post" class="shrink-0">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-logout" aria-label="Sign out" title="Sign out">
+                    <svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg>
+                </button>
+            </form>
         </div>
 
-        <!-- Administration section (ADMIN only) -->
-        <div class="nav-section" sec:authorize="hasRole('ADMIN')">
-            <span class="nav-section-label">Administration</span>
-            <a th:href="@{/admin/users}"
-               class="nav-item"
-               th:classappend="${activeMenu == 'users'} ? ' active' : ''">
-                <span class="nav-icon">👥</span>
-                <span>Users</span>
-            </a>
-        </div>
+    </aside>
 
-    </nav>
+    <div class="nav-backdrop" data-nav-close aria-hidden="true"></div>
 
-    <!-- User info + logout -->
-    <div class="sidebar-footer">
-        <div class="user-info">
-            <div class="user-avatar"
-                 th:text="${#authentication.principal.name.substring(0,1).toUpperCase()}">A</div>
-            <div class="user-details">
-                <span class="user-name"
-                      th:text="${#authentication.principal.name}">Admin</span>
-                <span class="user-role"
-                      th:text="${#authentication.principal.role.displayName}">Admin</span>
+    <header class="app-commandbar">
+        <div class="commandbar-inner">
+            <button type="button" class="nav-toggle" data-nav-toggle
+                    aria-label="Open navigation" aria-expanded="false" aria-controls="app-sidebar">
+                <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+            </button>
+
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <span class="breadcrumb-root">Workspace</span>
+                <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                <span class="breadcrumb-current">
+                    <th:block th:switch="${activeMenu}">
+                        <th:block th:case="'dashboard'">Dashboard</th:block>
+                        <th:block th:case="'leads'">Leads</th:block>
+                        <th:block th:case="'customers'">Customers</th:block>
+                        <th:block th:case="'deals'">Deals</th:block>
+                        <th:block th:case="'tasks'">Tasks</th:block>
+                        <th:block th:case="'reports'">Reports</th:block>
+                        <th:block th:case="'users'">Users</th:block>
+                        <th:block th:case="*">Workspace</th:block>
+                    </th:block>
+                </span>
+            </nav>
+
+            <div class="commandbar-meta">
+                <span class="date-label"
+                      th:text="${#temporals.format(#temporals.createNow(), 'EEE, d MMM yyyy')}">Today</span>
+                <a th:href="@{/tasks/mine}" class="commandbar-link">
+                    My tasks
+                    <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                </a>
             </div>
         </div>
-        <form th:action="@{/logout}" method="post" style="flex-shrink:0;">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="btn-logout" title="Sign out">↩</button>
-        </form>
-    </div>
+    </header>
 
-</aside>
+</div>
 
 </body>
 </html>

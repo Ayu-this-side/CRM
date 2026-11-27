@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='customers')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <!-- Page Header -->
     <div class="page-header">
@@ -16,18 +16,18 @@
         </div>
         <div class="action-buttons">
             <a th:href="@{/customers/new}" class="btn btn-primary" id="btn-create-customer">
-                <span>+</span> New Customer
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg> New Customer
             </a>
         </div>
     </div>
 
     <!-- Flash Messages -->
     <div th:if="${successMessage}" class="alert alert-success">
-        <span>✓</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check-circle"/></svg>
         <span th:text="${successMessage}">Success message</span>
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 
@@ -35,7 +35,7 @@
     <div class="toolbar-card">
         <form th:action="@{/customers}" method="get" class="filter-form">
             <div class="filter-input-wrap">
-                <span class="filter-icon">🔍</span>
+                <svg class="icon icon-sm filter-icon" aria-hidden="true"><use href="#i-search"/></svg>
                 <input type="text"
                        name="keyword"
                        th:value="${keyword}"
@@ -60,44 +60,45 @@
             </select>
 
             <button type="submit" class="btn btn-secondary">Filter</button>
-            <a th:href="@{/customers}" class="btn btn-secondary" style="color: var(--text-faint);">Reset</a>
+            <a th:href="@{/customers}" class="btn btn-quiet">Reset</a>
         </form>
     </div>
 
     <!-- Customers Table Card -->
     <div class="card">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" data-client-filter>
+                <caption class="sr-only">Customers matching the current filters</caption>
                 <thead>
                     <tr>
-                        <th>Customer / Contact</th>
-                        <th>Company</th>
-                        <th>Contact Info</th>
-                        <th>Status</th>
-                        <th>Origin Lead</th>
-                        <th>Account Rep</th>
-                        <th>Client Since</th>
-                        <th style="text-align: right;">Actions</th>
+                        <th scope="col">Customer / Contact</th>
+                        <th scope="col">Company</th>
+                        <th scope="col">Contact Info</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Origin Lead</th>
+                        <th scope="col">Account Rep</th>
+                        <th scope="col">Client Since</th>
+                        <th scope="col" class="num">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${customersPage.empty}">
                         <td colspan="8" class="empty-state">
-                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">🤝</span>
+                            <svg class="icon" aria-hidden="true"><use href="#i-users"/></svg>
                             No customers found matching your criteria.
                         </td>
                     </tr>
                     <tr th:each="cust : ${customersPage.content}">
                         <td>
                             <a th:href="@{/customers/{id}(id=${cust.id})}"
-                               style="font-weight: 600; color: var(--text);"
-                               th:text="${cust.name}">Alice Johnson</a>
+                              
+                               th:text="${cust.name}" class="strong">Alice Johnson</a>
                         </td>
                         <td th:text="${cust.company != null ? cust.company : '—'}">TechCorp Inc</td>
                         <td>
-                            <div style="font-size: 13px;" th:text="${cust.email}">alice@techcorp.com</div>
-                            <div style="font-size: 11.5px; color: var(--text-faint);"
-                                 th:if="${cust.phone}" th:text="${cust.phone}">+1 555-0144</div>
+                            <div th:text="${cust.email}" class="cell-title">alice@techcorp.com</div>
+                            <div
+                                 th:if="${cust.phone}" th:text="${cust.phone}" class="cell-sub">+1 555-0144</div>
                         </td>
                         <td>
                             <span class="badge"
@@ -108,24 +109,24 @@
                             <a th:if="${cust.originLead != null}"
                                th:href="@{/leads/{id}(id=${cust.originLead.id})}"
                                class="badge badge-purple"
-                               style="text-decoration: none;"
+                              
                                title="Click to view origin lead">
                                 Lead #<span th:text="${cust.originLead.id}">1</span>
                             </a>
-                            <span th:unless="${cust.originLead != null}" style="color: var(--text-faint); font-size: 12px;">Direct</span>
+                            <span th:unless="${cust.originLead != null}" class="cell-sub">Direct</span>
                         </td>
                         <td>
                             <div th:if="${cust.assignedRep != null}" class="user-cell">
                                 <div class="user-avatar-sm"
                                      th:text="${cust.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
-                                <span style="font-size: 13px;" th:text="${cust.assignedRep.name}">Rep Name</span>
+                                <span th:text="${cust.assignedRep.name}" class="cell-title">Rep Name</span>
                             </div>
-                            <span th:unless="${cust.assignedRep != null}" style="color: var(--text-faint);">—</span>
+                            <span th:unless="${cust.assignedRep != null}" class="muted">—</span>
                         </td>
-                        <td style="font-size: 12px; color: var(--text-muted);"
-                            th:text="${#temporals.format(cust.createdAt, 'MMM d, yyyy')}">Oct 23, 2026</td>
-                        <td style="text-align: right;">
-                            <div class="action-buttons" style="justify-content: flex-end;">
+                        <td
+                            th:text="${#temporals.format(cust.createdAt, 'MMM d, yyyy')}" class="date-cell">Oct 23, 2026</td>
+                        <td class="num">
+                            <div class="action-buttons justify-end">
                                 <a th:href="@{/customers/{id}(id=${cust.id})}"
                                    class="btn btn-sm btn-secondary">
                                     View
@@ -157,7 +158,7 @@
                 <!-- Previous Button -->
                 <a th:if="${!customersPage.first}"
                    th:href="@{/customers(page=${customersPage.number - 1}, keyword=${keyword}, status=${currentStatus}, repId=${currentRepId})}"
-                   class="page-btn">‹</a>
+                   class="page-btn" aria-label="Previous page"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-left"/></svg></a>
 
                 <!-- Page numbers -->
                 <a th:each="p : ${#numbers.sequence(0, customersPage.totalPages - 1)}"
@@ -169,7 +170,7 @@
                 <!-- Next Button -->
                 <a th:if="${!customersPage.last}"
                    th:href="@{/customers(page=${customersPage.number + 1}, keyword=${keyword}, status=${currentStatus}, repId=${currentRepId})}"
-                   class="page-btn">›</a>
+                   class="page-btn" aria-label="Next page"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
             </div>
         </div>
     </div>

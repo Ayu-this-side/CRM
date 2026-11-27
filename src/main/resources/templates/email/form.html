@@ -5,25 +5,29 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='tasks')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
             <h1 class="page-title">Send Email</h1>
             <p class="page-subtitle">Sent emails are logged automatically in the record's activity feed.</p>
         </div>
-        <div><a th:href="${linkedRecord != null ? linkedRecord.path() : '/tasks'}" class="btn btn-secondary">← Back</a></div>
+        <div><a th:href="${linkedRecord != null ? linkedRecord.path() : '/tasks'}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a></div>
     </div>
 
-    <div th:if="${!mailEnabled}" class="coming-soon-banner" style="padding: 16px; margin-bottom: 20px;">
-        <div style="font-size: 14px; color: var(--text-muted);">
-            <strong>Demo mode:</strong> SMTP is disabled, so emails are simulated and logged only.
-            Set <code>CRM_MAIL_ENABLED=true</code> with SMTP environment variables to send for real.
+    <div th:if="${!mailEnabled}" class="coming-soon-banner">
+        <div class="placeholder-icon">
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-info"/></svg>
+        </div>
+        <div class="placeholder-content">
+            <h4>Demo mode</h4>
+            <p>SMTP is disabled, so emails are simulated and logged only. Set
+               <code>CRM_MAIL_ENABLED=true</code> with SMTP environment variables to send for real.</p>
         </div>
     </div>
 
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span><span th:text="${errorMessage}">Error message</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg><span th:text="${errorMessage}">Error message</span>
     </div>
 
     <div class="card form-card">
@@ -59,8 +63,8 @@
                     <label for="linkedEntityId">Record ID</label>
                     <input type="number" id="linkedEntityId" th:field="*{linkedEntityId}" class="form-control"
                            placeholder="e.g. 1"/>
-                    <small th:if="${linkedRecord != null}" style="font-size: 11.5px; color: var(--accent-light);"
-                           th:text="${linkedRecord.displayName()}">Selected record</small>
+                    <small th:if="${linkedRecord != null}"
+                           th:text="${linkedRecord.displayName()}" class="link cell-sub">Selected record</small>
                 </div>
             </div>
 

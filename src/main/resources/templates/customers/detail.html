@@ -6,22 +6,22 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='customers')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <!-- Flash Messages -->
     <div th:if="${successMessage}" class="alert alert-success">
-        <span>✓</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check-circle"/></svg>
         <span th:text="${successMessage}">Success message</span>
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 
     <!-- Page Header -->
     <div class="page-header">
         <div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+            <div class="title-line">
                 <h1 class="page-title" th:text="${customer.name}">Alice Johnson</h1>
                 <span class="badge"
                       th:classappend="${customer.status.badgeClass}"
@@ -31,18 +31,20 @@
         </div>
 
         <div class="action-buttons">
-            <a th:href="@{/customers}" class="btn btn-secondary">← Back to Customers</a>
+            <a th:href="@{/customers}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Customers</a>
             <a th:href="@{/customers/{id}/edit(id=${customer.id})}" class="btn btn-secondary">
-                ✏ Edit Customer
+                <svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg>
+                Edit customer
             </a>
             <a th:href="@{/deals/new(customerId=${customer.id})}" class="btn btn-secondary">
-                + New Deal
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+                New deal
             </a>
             <form th:if="${customer.originLead == null}"
                   th:action="@{/customers/{id}/delete(id=${customer.id})}"
                   method="post"
-                  style="display: inline;"
-                  onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                 
+                  data-confirm="Delete this customer? This action cannot be undone." class="inline">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>
@@ -53,14 +55,14 @@
     <div class="detail-grid">
 
         <!-- Left Column: Customer Profile & Placeholders -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="detail-stack">
 
             <!-- Customer Profile Card -->
             <div class="detail-card">
                 <div class="detail-card-title">
                     <span>Account Profile</span>
-                    <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;"
-                          th:text="'ID: #' + ${customer.id}">ID: #1</span>
+                    <span
+                          th:text="'ID: #' + ${customer.id}" class="id-note">ID: #1</span>
                 </div>
 
                 <div class="detail-field-list">
@@ -77,7 +79,7 @@
                     <div class="detail-field">
                         <span class="detail-label">Email Address</span>
                         <span class="detail-value">
-                            <a th:href="'mailto:' + ${customer.email}" th:text="${customer.email}" style="color: var(--accent-light);">alice@techcorp.com</a>
+                            <a th:href="'mailto:' + ${customer.email}" th:text="${customer.email}" class="link">alice@techcorp.com</a>
                         </span>
                     </div>
 
@@ -110,7 +112,7 @@
 
             <!-- Future Phase Placeholders -->
             <div>
-                <h3 style="font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px;">
+                <h3 class="subsection-title">
                     Linked Activity & Pipeline
                 </h3>
 
@@ -119,22 +121,22 @@
                     <div class="detail-card-title">
                         <span>Deals & Opportunities</span>
                         <a th:href="@{/deals/new(customerId=${customer.id})}"
-                           style="font-size: 12px; color: var(--accent-light);">+ New Deal</a>
+                           class="list-link"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg> New deal</a>
                     </div>
 
                     <div th:if="${customerDeals == null or customerDeals.isEmpty()}"
-                         style="font-size: 13px; color: var(--text-faint); line-height: 1.6;">
+                         class="prose muted">
                         No deals for this customer yet. Create one to start tracking the pipeline.
                     </div>
 
                     <div th:each="deal : ${customerDeals}"
-                         style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border);">
-                        <div style="min-width: 0;">
+                         class="inline-deal">
+                        <div class="min-w-0">
                             <a th:href="@{/deals/{id}(id=${deal.id})}"
-                               style="font-size: 13.5px; font-weight: 600; color: var(--text);"
-                               th:text="${deal.title}">Deal title</a>
-                            <div style="font-size: 11.5px; color: var(--text-faint);"
-                                 th:text="'₹' + ${#numbers.formatDecimal(deal.value, 1, 2)} + ' · ' + ${deal.probability} + '%'">₹0.00</div>
+                              
+                               th:text="${deal.title}" class="strong">Deal title</a>
+                            <div
+                                 th:text="'₹' + ${#numbers.formatDecimal(deal.value, 1, 2)} + ' · ' + ${deal.probability} + '%'" class="cell-sub">₹0.00</div>
                         </div>
                         <span class="badge"
                               th:classappend="${deal.stage.badgeClass}"
@@ -142,8 +144,9 @@
                     </div>
 
                     <a th:href="@{/deals(customerId=${customer.id})}"
-                       style="display: inline-block; margin-top: 12px; font-size: 12.5px; color: var(--accent-light);">
-                        View all deals for this customer →
+                       class="block-link link">
+                        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                        View all deals for this customer
                     </a>
                 </div>
 
@@ -154,7 +157,7 @@
         </div>
 
         <!-- Right Column: Account Rep & Origin Lead Info -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="detail-stack">
 
             <!-- Account Rep Card -->
             <div class="detail-card">
@@ -163,24 +166,24 @@
                 </div>
 
                 <div th:if="${customer.assignedRep != null}">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div class="person-row">
                         <div class="user-avatar"
                              th:text="${customer.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px; color: var(--text);"
-                                 th:text="${customer.assignedRep.name}">Rep Name</div>
-                            <div style="font-size: 12px; color: var(--text-muted);"
-                                 th:text="${customer.assignedRep.role.displayName}">Sales Rep</div>
+                            <div
+                                 th:text="${customer.assignedRep.name}" class="person-name">Rep Name</div>
+                            <div
+                                 th:text="${customer.assignedRep.role.displayName}" class="date-cell">Sales Rep</div>
                         </div>
                     </div>
-                    <div style="font-size: 12.5px; color: var(--text-muted);">
+                    <div class="cell-meta">
                         Email: <a th:href="'mailto:' + ${customer.assignedRep.email}"
                                   th:text="${customer.assignedRep.email}"
-                                  style="color: var(--accent-light);">rep@crm.com</a>
+                                  class="link">rep@crm.com</a>
                     </div>
                 </div>
 
-                <div th:unless="${customer.assignedRep != null}" style="color: var(--text-faint); font-size: 13px;">
+                <div th:unless="${customer.assignedRep != null}" class="prose muted">
                     Unassigned customer.
                 </div>
             </div>
@@ -192,26 +195,27 @@
                 </div>
 
                 <div th:if="${customer.originLead != null}">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <div class="flex mb-2">
                         <span class="badge badge-purple">Converted from Lead</span>
                     </div>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+                    <p class="prose mb-3">
                         This customer originated from lead <strong>#<span th:text="${customer.originLead.id}">1</span></strong>
                         (<span th:text="${customer.originLead.name}">Lead Name</span>).
                     </p>
                     <a th:href="@{/leads/{id}(id=${customer.originLead.id})}"
-                       class="btn btn-sm btn-secondary"
-                       style="width: 100%; justify-content: center;">
-                        View Source Lead Record →
+                       class="btn btn-sm btn-secondary full-width-btn"
+                      >
+                        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                        View source lead record
                     </a>
-                    <p style="font-size: 12px; color: var(--text-faint); margin-top: 8px;">
+                    <p class="cell-sub mt-2">
                         Converted customers are retained to preserve lead traceability and cannot be deleted.
                     </p>
                 </div>
 
                 <div th:unless="${customer.originLead != null}">
-                    <span class="badge badge-blue" style="margin-bottom: 10px;">Direct Client Account</span>
-                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                    <span class="badge badge-blue mb-2">Direct Client Account</span>
+                    <p class="prose">
                         This customer was created directly in the CRM without going through the lead qualification pipeline.
                     </p>
                 </div>

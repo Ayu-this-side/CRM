@@ -7,17 +7,18 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#0b1220"/>
     <title th:text="${title + ' — CRM Pro'}">CRM Pro</title>
-    <meta name="description" content="CRM Pro — Sales Intelligence Platform"/>
+    <meta name="description" content="CRM Pro — a focused workspace for pipeline, customers and follow-ups."/>
     <meta name="robots" content="noindex"/>
 
-    <!-- Google Fonts: Inter -->
+    <!-- Fira Sans: UI · Fira Code: data, identifiers, micro-labels -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@400;500;600;700&display=swap"
           rel="stylesheet"/>
 
-    <!-- App stylesheet -->
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 </html>

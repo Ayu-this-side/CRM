@@ -1,0 +1,41 @@
+/* Design Tokens - Auto-generated */
+/* Do not edit directly - modify tokens.json instead */
+
+/* === PRIMITIVES === */
+:root {
+
+}
+
+/* === SEMANTIC === */
+:root {
+  --color-primary: #22C55E;
+  --color-on-primary: #041008;
+  --color-secondary: #4ADE80;
+  --color-on-secondary: #041008;
+  --color-accent: #86EFAC;
+  --color-on-accent: #041008;
+  --color-background: #050806;
+  --color-foreground: #E9F7ED;
+  --color-card: #0A100C;
+  --color-card-foreground: #E9F7ED;
+  --color-muted: #0D1510;
+  --color-muted-foreground: #93A897;
+  --color-border: #1B2A20;
+  --color-destructive: #F87171;
+  --color-on-destructive: #1A0707;
+  --color-ring: #4ADE80;
+  --font-heading: "Fira Code", monospace;
+  --font-body: "Fira Sans", sans-serif;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+}
+
+/* === COMPONENTS === */
+:root {
+
+}

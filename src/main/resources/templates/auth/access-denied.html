@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Access Denied — CRM Pro</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-</head>
+<head th:replace="~{fragments/head :: head(title='Access Denied')}"></head>
 <body class="auth-body">
 
-<div class="error-container">
-    <div class="error-card">
-        <span class="error-icon">🚫</span>
-        <div class="error-status">403</div>
-        <h1>Access Denied</h1>
-        <p>You don't have permission to view this page.<br/>
-           Contact your admin if you believe this is an error.</p>
-        <a th:href="@{/}" class="btn btn-primary" id="goHomeBtn">← Back to Dashboard</a>
+<a class="skip-link" href="#error-content">Skip to message</a>
+<div th:replace="~{fragments/icons :: sprite}"></div>
+
+<main class="auth-main" id="error-content">
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <svg class="icon icon-lg" aria-hidden="true"><use href="#i-shield"/></svg>
+            </div>
+            <div class="error-status" aria-hidden="true">403</div>
+            <h1>Access denied</h1>
+            <p>You don't have permission to view this page.<br/>
+               Contact your admin if you believe this is an error.</p>
+            <a th:href="@{/}" class="btn btn-primary" id="goHomeBtn">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+                Back to dashboard
+            </a>
+        </div>
     </div>
-</div>
+</main>
 
 </body>
 </html>

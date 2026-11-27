@@ -8,7 +8,7 @@
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='users')}"></div>
 
 <!-- Main content -->
-<main class="main-content">
+<main class="main-content" id="main">
 
     <!-- Page header -->
     <div class="page-header">
@@ -23,24 +23,27 @@
 
     <!-- Flash messages -->
     <div th:if="${successMessage}" class="alert alert-success" id="flashSuccess">
-        ✓ <span th:text="${successMessage}"></span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check-circle"/></svg>
+        <span th:text="${successMessage}"></span>
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger" id="flashError">
-        ✗ <span th:text="${errorMessage}"></span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-x-circle"/></svg>
+        <span th:text="${errorMessage}"></span>
     </div>
 
     <!-- Users table -->
     <div class="card">
         <div class="table-responsive">
-            <table class="table" id="usersTable">
+            <table class="table" id="usersTable" data-client-filter>
+                <caption class="sr-only">User accounts in this organisation</caption>
                 <thead>
                     <tr>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,13 +78,14 @@
                                 <form th:if="${user.enabled}"
                                       th:action="@{/admin/users/{id}/deactivate(id=${user.id})}"
                                       method="post"
-                                      style="display:inline;"
-                                      th:id="'deactivateForm-' + ${user.id}">
+                                     
+                                      data-confirm="Deactivate this user? They will no longer be able to log in."
+                                       th:id="'deactivateForm-' + ${user.id}" class="inline">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <button type="submit"
                                             class="btn btn-sm btn-danger"
                                             th:id="'deactivateBtn-' + ${user.id}"
-                                            onclick="return confirm('Deactivate this user? They will no longer be able to log in.')">
+                                            >
                                         Deactivate
                                     </button>
                                 </form>
@@ -90,8 +94,8 @@
                                 <form th:if="${!user.enabled}"
                                       th:action="@{/admin/users/{id}/activate(id=${user.id})}"
                                       method="post"
-                                      style="display:inline;"
-                                      th:id="'activateForm-' + ${user.id}">
+                                     
+                                      th:id="'activateForm-' + ${user.id}" class="inline">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <button type="submit"
                                             class="btn btn-sm btn-success"
@@ -106,7 +110,7 @@
                     <!-- Empty state -->
                     <tr th:if="${users.empty}">
                         <td colspan="6" class="empty-state">
-                            No users found. <a th:href="@{/admin/users/new}">Create the first one →</a>
+                            No users found. <a th:href="@{/admin/users/new}" class="list-link"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg> Create the first user</a>
                         </td>
                     </tr>
                 </tbody>

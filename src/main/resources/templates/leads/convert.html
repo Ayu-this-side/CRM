@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='leads')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
@@ -16,22 +16,22 @@
             </p>
         </div>
         <div>
-            <a th:href="@{/leads/{id}(id=${lead.id})}" class="btn btn-secondary">← Back to Lead</a>
+            <a th:href="@{/leads/{id}(id=${lead.id})}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Lead</a>
         </div>
     </div>
 
     <!-- Error Banner -->
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 
     <!-- Conversion Explainer Card -->
-    <div class="alert alert-success" style="margin-bottom: 24px;">
-        <span style="font-size: 20px;">ℹ</span>
+    <div class="alert alert-success mb-5">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-info"/></svg>
         <div>
-            <strong>Lead → Customer Lifecycle Transition</strong>
-            <p style="font-size: 13px; margin-top: 4px; line-height: 1.5;">
+            <strong>Lead to customer lifecycle transition</strong>
+            <p class="prose mt-1">
                 Converting this lead creates a new Customer entity, pre-populated with contact details.
                 The origin lead record will be permanently linked and marked as <span class="badge badge-green">Converted</span>.
             </p>
@@ -47,7 +47,7 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" th:field="*{leadId}"/>
 
-            <h3 style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+            <h3 class="detail-section-title">
                 Customer Profile Details
             </h3>
 
@@ -149,7 +149,8 @@
                     Cancel
                 </a>
                 <button type="submit" class="btn btn-success" id="btn-confirm-convert">
-                    ✓ Confirm Conversion to Customer
+                    <svg class="icon" aria-hidden="true"><use href="#i-check-circle"/></svg>
+                    Confirm conversion to customer
                 </button>
             </div>
 

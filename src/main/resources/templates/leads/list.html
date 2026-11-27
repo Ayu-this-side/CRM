@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='leads')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <!-- Page Header -->
     <div class="page-header">
@@ -16,18 +16,18 @@
         </div>
         <div class="action-buttons">
             <a th:href="@{/leads/new}" class="btn btn-primary" id="btn-create-lead">
-                <span>+</span> New Lead
+                <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg> New Lead
             </a>
         </div>
     </div>
 
     <!-- Flash Messages -->
     <div th:if="${successMessage}" class="alert alert-success">
-        <span>✓</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check-circle"/></svg>
         <span th:text="${successMessage}">Success message</span>
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg>
         <span th:text="${errorMessage}">Error message</span>
     </div>
 
@@ -35,7 +35,7 @@
     <div class="toolbar-card">
         <form th:action="@{/leads}" method="get" class="filter-form">
             <div class="filter-input-wrap">
-                <span class="filter-icon">🔍</span>
+                <svg class="icon icon-sm filter-icon" aria-hidden="true"><use href="#i-search"/></svg>
                 <input type="text"
                        name="keyword"
                        th:value="${keyword}"
@@ -68,48 +68,49 @@
             </select>
 
             <button type="submit" class="btn btn-secondary">Filter</button>
-            <a th:href="@{/leads}" class="btn btn-secondary" style="color: var(--text-faint);">Reset</a>
+            <a th:href="@{/leads}" class="btn btn-quiet">Reset</a>
         </form>
     </div>
 
     <!-- Leads Table Card -->
     <div class="card">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" data-client-filter>
+                <caption class="sr-only">Leads matching the current filters</caption>
                 <thead>
                     <tr>
-                        <th>Lead Name</th>
-                        <th>Company</th>
-                        <th>Contact</th>
-                        <th>Source</th>
-                        <th>Status</th>
-                        <th>Assigned Rep</th>
-                        <th>Created</th>
-                        <th style="text-align: right;">Actions</th>
+                        <th scope="col">Lead Name</th>
+                        <th scope="col">Company</th>
+                        <th scope="col">Contact</th>
+                        <th scope="col">Source</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Assigned Rep</th>
+                        <th scope="col">Created</th>
+                        <th scope="col" class="num">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${leadsPage.empty}">
                         <td colspan="8" class="empty-state">
-                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">🎯</span>
+                            <svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>
                             No leads found matching your criteria.
                         </td>
                     </tr>
                     <tr th:each="lead : ${leadsPage.content}">
                         <td>
                             <a th:href="@{/leads/{id}(id=${lead.id})}"
-                               style="font-weight: 600; color: var(--text);"
-                               th:text="${lead.name}">Jane Doe</a>
+                              
+                               th:text="${lead.name}" class="strong">Jane Doe</a>
                         </td>
                         <td th:text="${lead.company != null ? lead.company : '—'}">Acme Corp</td>
                         <td>
-                            <div style="font-size: 13px;" th:text="${lead.email}">jane@acme.com</div>
-                            <div style="font-size: 11.5px; color: var(--text-faint);"
-                                 th:if="${lead.phone}" th:text="${lead.phone}">+1 555-0199</div>
+                            <div th:text="${lead.email}" class="cell-title">jane@acme.com</div>
+                            <div
+                                 th:if="${lead.phone}" th:text="${lead.phone}" class="cell-sub">+1 555-0199</div>
                         </td>
                         <td>
-                            <span style="font-size: 12px; color: var(--text-muted);"
-                                  th:text="${lead.source.displayName}">Website</span>
+                            <span
+                                  th:text="${lead.source.displayName}" class="date-cell">Website</span>
                         </td>
                         <td>
                             <span class="badge"
@@ -120,14 +121,14 @@
                             <div th:if="${lead.assignedRep != null}" class="user-cell">
                                 <div class="user-avatar-sm"
                                      th:text="${lead.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
-                                <span style="font-size: 13px;" th:text="${lead.assignedRep.name}">Rep Name</span>
+                                <span th:text="${lead.assignedRep.name}" class="cell-title">Rep Name</span>
                             </div>
-                            <span th:unless="${lead.assignedRep != null}" style="color: var(--text-faint);">—</span>
+                            <span th:unless="${lead.assignedRep != null}" class="muted">—</span>
                         </td>
-                        <td style="font-size: 12px; color: var(--text-muted);"
-                            th:text="${#temporals.format(lead.createdAt, 'MMM d, yyyy')}">Oct 23, 2026</td>
-                        <td style="text-align: right;">
-                            <div class="action-buttons" style="justify-content: flex-end;">
+                        <td
+                            th:text="${#temporals.format(lead.createdAt, 'MMM d, yyyy')}" class="date-cell">Oct 23, 2026</td>
+                        <td class="num">
+                            <div class="action-buttons justify-end">
                                 <a th:if="${lead.status.name() == 'QUALIFIED'}"
                                    th:href="@{/leads/{id}/convert(id=${lead.id})}"
                                    class="btn btn-sm btn-success"
@@ -162,7 +163,7 @@
                 <!-- Previous Button -->
                 <a th:if="${!leadsPage.first}"
                    th:href="@{/leads(page=${leadsPage.number - 1}, keyword=${keyword}, status=${currentStatus}, source=${currentSource}, repId=${currentRepId})}"
-                   class="page-btn">‹</a>
+                   class="page-btn" aria-label="Previous page"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-left"/></svg></a>
 
                 <!-- Page numbers -->
                 <a th:each="p : ${#numbers.sequence(0, leadsPage.totalPages - 1)}"
@@ -174,7 +175,7 @@
                 <!-- Next Button -->
                 <a th:if="${!leadsPage.last}"
                    th:href="@{/leads(page=${leadsPage.number + 1}, keyword=${keyword}, status=${currentStatus}, source=${currentSource}, repId=${currentRepId})}"
-                   class="page-btn">›</a>
+                   class="page-btn" aria-label="Next page"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
             </div>
         </div>
     </div>

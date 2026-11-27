@@ -4,15 +4,14 @@
 <head th:replace="~{fragments/head :: head(title='Reports & Analytics')}"></head>
 <body class="app-body">
 
-<!-- Sidebar -->
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='reports')}"></div>
 
-<!-- Main content -->
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
-            <h1 class="page-title">Reports &amp; Analytics</h1>
+            <span class="eyebrow">Insights</span>
+            <h1 class="page-title">Reports &amp; analytics</h1>
             <p class="page-subtitle">
                 Pipeline performance
                 <span th:if="${report.orgWide}">across the whole organisation.</span>
@@ -21,172 +20,191 @@
         </div>
         <div class="action-buttons">
             <span class="badge badge-purple" th:text="${report.orgWide} ? 'Organization-wide' : 'My records'">My records</span>
-            <a th:href="@{/}" class="btn btn-secondary">← Dashboard</a>
+            <a th:href="@{/}" class="btn btn-secondary">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+                Dashboard
+            </a>
         </div>
     </div>
 
-    <!-- Summary KPI cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-icon">🔁</span>
-            <div class="stat-value"
-                 th:text="${#numbers.formatDecimal(report.overallConversion.rate, 1, 1)} + '%'">0%</div>
-            <div class="stat-label">Lead Conversion Rate</div>
-            <div style="font-size: 12px; color: var(--text-faint); margin-top: 6px;"
-                 th:text="${report.overallConversion.converted} + ' of ' + ${report.overallConversion.total} + ' leads'">0 of 0 leads</div>
+    <div class="metric-strip" aria-label="Headline performance metrics">
+        <div class="metric" data-reveal>
+            <span class="metric-label">Lead conversion</span>
+            <span class="metric-value"
+                  th:text="${#numbers.formatDecimal(report.overallConversion.rate, 1, 1)} + '%'">0%</span>
+            <span class="metric-hint" th:text="${report.overallConversion.converted} + ' of ' + ${report.overallConversion.total} + ' leads'">0 of 0 leads</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">🏆</span>
-            <div class="stat-value"
-                 th:text="${#numbers.formatDecimal(report.winRate, 1, 1)} + '%'">0%</div>
-            <div class="stat-label">Deal Win Rate</div>
-            <div style="font-size: 12px; color: var(--text-faint); margin-top: 6px;"
-                 th:text="${report.wonCount} + ' won / ' + ${report.lostCount} + ' lost'">0 won / 0 lost</div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">Deal win rate</span>
+            <span class="metric-value"
+                  th:text="${#numbers.formatDecimal(report.winRate, 1, 1)} + '%'">0%</span>
+            <span class="metric-hint" th:text="${report.wonCount} + ' won / ' + ${report.lostCount} + ' lost'">0 won / 0 lost</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">📅</span>
-            <div class="stat-value"
-                 th:text="'₹' + ${#numbers.formatDecimal(report.revenueThisMonth, 1, 2)}">₹0</div>
-            <div class="stat-label">Revenue This Month</div>
-            <div style="font-size: 12px; color: var(--text-faint); margin-top: 6px;">Won deals closed this month</div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">Revenue this month</span>
+            <span class="metric-value"
+                  th:text="'₹' + ${#numbers.formatDecimal(report.revenueThisMonth, 1, 2)}">₹0</span>
+            <span class="metric-hint">Won deals closed this month</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">💹</span>
-            <div class="stat-value"
-                 th:text="'₹' + ${#numbers.formatDecimal(report.revenueThisQuarter, 1, 2)}">₹0</div>
-            <div class="stat-label">Revenue This Quarter</div>
-            <div style="font-size: 12px; color: var(--text-faint); margin-top: 6px;">Won deals closed this quarter</div>
+        <div class="metric" data-reveal>
+            <span class="metric-label">Revenue this quarter</span>
+            <span class="metric-value"
+                  th:text="'₹' + ${#numbers.formatDecimal(report.revenueThisQuarter, 1, 2)}">₹0</span>
+            <span class="metric-hint">Won deals closed this quarter</span>
         </div>
     </div>
 
-    <!-- Charts -->
-    <div class="report-chart-grid">
-        <div class="card report-chart-card">
-            <h2 class="report-chart-title">🎯 Leads by Status</h2>
-            <canvas id="leadsByStatusChart" height="220"></canvas>
-        </div>
-        <div class="card report-chart-card">
-            <h2 class="report-chart-title">📣 Conversion by Source</h2>
-            <canvas id="conversionBySourceChart" height="220"></canvas>
-        </div>
-        <div class="card report-chart-card">
-            <h2 class="report-chart-title">💰 Pipeline Value by Stage</h2>
-            <canvas id="pipelineValueChart" height="220"></canvas>
-        </div>
-        <div class="card report-chart-card">
-            <h2 class="report-chart-title">🏆 Won vs Lost</h2>
-            <canvas id="outcomesChart" height="220"></canvas>
-        </div>
-    </div>
+    <section aria-labelledby="charts-title">
+        <h2 class="section-title" id="charts-title">
+            Distribution
+            <span class="section-note">Values match the tables below</span>
+        </h2>
 
-    <!-- Detail tables -->
-    <div class="report-table-grid">
-        <div class="card" style="padding: 24px;">
-            <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px;">Lead Funnel</h2>
+        <div class="report-chart-grid">
+            <div class="card report-chart-card">
+                <h3 class="report-chart-title">Leads by status</h3>
+                <p class="sr-only">Doughnut chart of lead counts by status. The exact figures are in the Lead funnel table below.</p>
+                <div class="chart-frame"><canvas id="leadsByStatusChart" role="img"
+                        aria-label="Lead counts by status"></canvas></div>
+            </div>
+            <div class="card report-chart-card">
+                <h3 class="report-chart-title">Conversion by source</h3>
+                <p class="sr-only">Grouped bar chart of total and converted leads per source. The exact figures are in the Source performance table below.</p>
+                <div class="chart-frame"><canvas id="conversionBySourceChart" role="img"
+                        aria-label="Total and converted leads by source"></canvas></div>
+            </div>
+            <div class="card report-chart-card">
+                <h3 class="report-chart-title">Pipeline value by stage</h3>
+                <p class="sr-only">Bar chart of open pipeline value by deal stage. The exact figures are in the Deal pipeline table below.</p>
+                <div class="chart-frame"><canvas id="pipelineValueChart" role="img"
+                        aria-label="Pipeline value by deal stage"></canvas></div>
+            </div>
+            <div class="card report-chart-card">
+                <h3 class="report-chart-title">Won vs lost</h3>
+                <p class="sr-only">Doughnut chart of won and lost deal counts. The exact figures are in the Deal pipeline table below.</p>
+                <div class="chart-frame"><canvas id="outcomesChart" role="img"
+                        aria-label="Won versus lost deal counts"></canvas></div>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="tables-title">
+        <h2 class="section-title" id="tables-title">
+            Detail tables
+            <span class="section-note">Accessible data behind the charts</span>
+        </h2>
+
+        <div class="report-table-grid">
+            <div class="card">
+                <h3 class="report-chart-title">Lead funnel</h3>
+                <div class="table-responsive">
+                    <table class="table" data-client-filter>
+                        <caption class="sr-only">Lead counts by status</caption>
+                        <thead>
+                            <tr><th scope="col">Status</th><th scope="col" class="num">Leads</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="entry : ${report.leadsByStatus}">
+                                <td th:text="${entry.key.displayName}">New</td>
+                                <td class="num" th:text="${entry.value}">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="report-chart-title">Source performance</h3>
+                <div class="table-responsive">
+                    <table class="table" data-client-filter>
+                        <caption class="sr-only">Lead and conversion counts by acquisition source</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Source</th>
+                                <th scope="col" class="num">Leads</th>
+                                <th scope="col" class="num">Converted</th>
+                                <th scope="col" class="num">Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="entry : ${report.conversionBySource}">
+                                <td th:text="${entry.key.displayName}">Website</td>
+                                <td class="num" th:text="${entry.value.total}">0</td>
+                                <td class="num" th:text="${entry.value.converted}">0</td>
+                                <td class="num"
+                                    th:text="${#numbers.formatDecimal(entry.value.rate, 1, 1)} + '%'">0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-5">
+            <h3 class="report-chart-title">Deal pipeline</h3>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" data-client-filter>
+                    <caption class="sr-only">Deal counts and value by pipeline stage</caption>
                     <thead>
-                    <tr><th>Status</th><th style="text-align: right;">Leads</th></tr>
+                        <tr>
+                            <th scope="col">Stage</th>
+                            <th scope="col" class="num">Deals</th>
+                            <th scope="col" class="num">Value</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="entry : ${report.leadsByStatus}">
-                        <td th:text="${entry.key.displayName}">New</td>
-                        <td style="text-align: right;" th:text="${entry.value}">0</td>
-                    </tr>
+                        <tr th:each="entry : ${report.pipelineValueByStage}">
+                            <td th:text="${entry.key.displayName}">Prospecting</td>
+                            <td class="num" th:text="${report.outcomes[entry.key]}">0</td>
+                            <td class="num"
+                                th:text="'₹' + ${#numbers.formatDecimal(entry.value, 1, 2)}">₹0</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="card" style="padding: 24px;">
-            <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px;">Source Performance</h2>
+        <div class="card" sec:authorize="hasRole('ADMIN')">
+            <h3 class="report-chart-title">Per-rep performance</h3>
+            <p class="text-block mb-4">Organisation-wide breakdown by active Sales Rep.</p>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" data-client-filter>
+                    <caption class="sr-only">Performance metrics for each active sales rep</caption>
                     <thead>
-                    <tr>
-                        <th>Source</th>
-                        <th style="text-align: right;">Leads</th>
-                        <th style="text-align: right;">Converted</th>
-                        <th style="text-align: right;">Rate</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">Rep</th>
+                            <th scope="col" class="num">Leads</th>
+                            <th scope="col" class="num">Customers</th>
+                            <th scope="col" class="num">Open deals</th>
+                            <th scope="col" class="num">Won</th>
+                            <th scope="col" class="num">Won revenue</th>
+                            <th scope="col" class="num">Open tasks</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="entry : ${report.conversionBySource}">
-                        <td th:text="${entry.key.displayName}">Website</td>
-                        <td style="text-align: right;" th:text="${entry.value.total}">0</td>
-                        <td style="text-align: right;" th:text="${entry.value.converted}">0</td>
-                        <td style="text-align: right;"
-                            th:text="${#numbers.formatDecimal(entry.value.rate, 1, 1)} + '%'">0%</td>
-                    </tr>
+                        <tr th:each="rep : ${report.repPerformance}">
+                            <td>
+                                <span class="cell-stack">
+                                    <span th:text="${rep.name}">Rep Name</span>
+                                    <span class="cell-sub" th:text="${rep.email}">rep@crm.com</span>
+                                </span>
+                            </td>
+                            <td class="num" th:text="${rep.leads}">0</td>
+                            <td class="num" th:text="${rep.customers}">0</td>
+                            <td class="num" th:text="${rep.openDeals}">0</td>
+                            <td class="num" th:text="${rep.wonDeals}">0</td>
+                            <td class="num"
+                                th:text="'₹' + ${#numbers.formatDecimal(rep.wonRevenue, 1, 2)}">₹0</td>
+                            <td class="num" th:text="${rep.openTasks}">0</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(report.repPerformance)}">
+                            <td colspan="7" class="empty-state">No active Sales Reps yet.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-
-    <div class="card" style="padding: 24px; margin-bottom: 28px;">
-        <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px;">Deal Pipeline</h2>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Stage</th>
-                    <th style="text-align: right;">Deals</th>
-                    <th style="text-align: right;">Value</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="entry : ${report.pipelineValueByStage}">
-                    <td th:text="${entry.key.displayName}">Prospecting</td>
-                    <td style="text-align: right;" th:text="${report.outcomes[entry.key]}">0</td>
-                    <td style="text-align: right;"
-                        th:text="'₹' + ${#numbers.formatDecimal(entry.value, 1, 2)}">₹0</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Admin-only per-rep performance -->
-    <div class="card" sec:authorize="hasRole('ADMIN')" style="padding: 24px; margin-bottom: 28px;">
-        <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Per-Rep Performance</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-            Organisation-wide breakdown by active Sales Rep.
-        </p>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Rep</th>
-                    <th style="text-align: right;">Leads</th>
-                    <th style="text-align: right;">Customers</th>
-                    <th style="text-align: right;">Open Deals</th>
-                    <th style="text-align: right;">Won</th>
-                    <th style="text-align: right;">Won Revenue</th>
-                    <th style="text-align: right;">Open Tasks</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="rep : ${report.repPerformance}">
-                    <td>
-                        <div th:text="${rep.name}">Rep Name</div>
-                        <div style="font-size: 11.5px; color: var(--text-faint);" th:text="${rep.email}">rep@crm.com</div>
-                    </td>
-                    <td style="text-align: right;" th:text="${rep.leads}">0</td>
-                    <td style="text-align: right;" th:text="${rep.customers}">0</td>
-                    <td style="text-align: right;" th:text="${rep.openDeals}">0</td>
-                    <td style="text-align: right;" th:text="${rep.wonDeals}">0</td>
-                    <td style="text-align: right;"
-                        th:text="'₹' + ${#numbers.formatDecimal(rep.wonRevenue, 1, 2)}">₹0</td>
-                    <td style="text-align: right;" th:text="${rep.openTasks}">0</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(report.repPerformance)}">
-                    <td colspan="7" style="text-align: center; color: var(--text-muted);">No active Sales Reps yet.</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    </section>
 
 </main>
 
@@ -205,9 +223,19 @@
         PROSPECTING: 'Prospecting', PROPOSAL: 'Proposal', NEGOTIATION: 'Negotiation', WON: 'Won', LOST: 'Lost'
     };
 
-    Chart.defaults.color = '#8b95a8';
-    Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
-    Chart.defaults.font.family = 'Inter, sans-serif';
+    var css = getComputedStyle(document.documentElement);
+    function token(name) { return css.getPropertyValue(name).trim(); }
+
+    Chart.defaults.color = token('--muted') || '#64748b';
+    Chart.defaults.borderColor = token('--line') || '#dbe3ec';
+    Chart.defaults.font.family = "'Fira Sans', system-ui, sans-serif";
+    Chart.defaults.font.size = 11;
+
+    var blue = token('--chart-blue') || '#3b82f6';
+    var amber = token('--chart-amber') || '#d97706';
+    var violet = token('--chart-violet') || '#7c3aed';
+    var green = token('--chart-green') || '#059669';
+    var red = token('--chart-red') || '#dc2626';
 
     function values(map, labels) {
         return Object.keys(map).map(function (key) { return labels[key] || key; });
@@ -218,6 +246,12 @@
     function money(value) {
         return '₹' + Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 });
     }
+    function hexAlpha(hex, alpha) {
+        var value = hex.replace('#', '');
+        if (value.length === 3) value = value.split('').map(function (c) { return c + c; }).join('');
+        var num = parseInt(value, 16);
+        return 'rgba(' + ((num >> 16) & 255) + ',' + ((num >> 8) & 255) + ',' + (num & 255) + ',' + alpha + ')';
+    }
 
     new Chart(document.getElementById('leadsByStatusChart'), {
         type: 'doughnut',
@@ -225,11 +259,12 @@
             labels: values(report.leadsByStatus, leadStatusLabels),
             datasets: [{
                 data: numbers(report.leadsByStatus),
-                backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'],
-                borderWidth: 0
+                backgroundColor: [blue, amber, violet, green, red],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 
     new Chart(document.getElementById('conversionBySourceChart'), {
@@ -240,20 +275,20 @@
                 {
                     label: 'Total leads',
                     data: Object.keys(report.conversionBySource).map(function (k) { return report.conversionBySource[k].total; }),
-                    backgroundColor: 'rgba(99,102,241,0.75)',
-                    borderRadius: 5
+                    backgroundColor: hexAlpha(blue, 0.85),
+                    borderRadius: 4
                 },
                 {
                     label: 'Converted',
                     data: Object.keys(report.conversionBySource).map(function (k) { return report.conversionBySource[k].converted; }),
-                    backgroundColor: 'rgba(16,185,129,0.8)',
-                    borderRadius: 5
+                    backgroundColor: hexAlpha(green, 0.9),
+                    borderRadius: 4
                 }
             ]
         },
         options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: token('--chart-grid') } }, x: { grid: { display: false } } },
             plugins: { legend: { position: 'bottom' } }
         }
     });
@@ -265,13 +300,16 @@
             datasets: [{
                 label: 'Pipeline value',
                 data: numbers(report.pipelineValueByStage),
-                backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'],
-                borderRadius: 5
+                backgroundColor: [blue, violet, amber, green, red],
+                borderRadius: 4
             }]
         },
         options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, ticks: { callback: money } } },
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: token('--chart-grid') }, ticks: { callback: money } },
+                x: { grid: { display: false } }
+            },
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return money(c.parsed.y); } } } }
         }
     });
@@ -282,11 +320,12 @@
             labels: ['Won', 'Lost'],
             datasets: [{
                 data: [report.outcomes.WON, report.outcomes.LOST],
-                backgroundColor: ['#10b981', '#ef4444'],
-                borderWidth: 0
+                backgroundColor: [green, red],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 </script>
 

@@ -6,7 +6,7 @@
 
 <div th:replace="~{fragments/navbar :: sidebar(activeMenu='tasks')}"></div>
 
-<main class="main-content">
+<main class="main-content" id="main">
 
     <div class="page-header">
         <div>
@@ -14,12 +14,12 @@
             <p class="page-subtitle">Follow-ups stay visible in the record's activity feed.</p>
         </div>
         <div>
-            <a th:href="${editMode ? '/tasks/' + taskId : '/tasks'}" class="btn btn-secondary">← Back</a>
+            <a th:href="${editMode ? '/tasks/' + taskId : '/tasks'}" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</a>
         </div>
     </div>
 
     <div th:if="${errorMessage}" class="alert alert-danger">
-        <span>⚠</span><span th:text="${errorMessage}">Error message</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-exclamation"/></svg><span th:text="${errorMessage}">Error message</span>
     </div>
 
     <div class="card form-card">
@@ -74,9 +74,9 @@
                            th:classappend="${#fields.hasErrors('linkedEntityId')} ? ' is-invalid' : ''"
                            placeholder="e.g. 1"/>
                     <span th:if="${#fields.hasErrors('linkedEntityId')}" th:errors="*{linkedEntityId}" class="field-error">Record required</span>
-                    <small th:if="${linkedRecord != null}" style="font-size: 11.5px; color: var(--accent-light);"
-                           th:text="${linkedRecord.displayName()}">Selected record</small>
-                    <small th:unless="${linkedRecord != null}" style="font-size: 11.5px; color: var(--text-faint);">
+                    <small th:if="${linkedRecord != null}"
+                           th:text="${linkedRecord.displayName()}" class="link cell-sub">Selected record</small>
+                    <small th:unless="${linkedRecord != null}" class="cell-sub">
                         Use the "Add Task" button on a record page to pre-fill this automatically.
                     </small>
                 </div>

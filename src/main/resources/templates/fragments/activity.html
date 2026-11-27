@@ -8,36 +8,47 @@
 -->
 <div th:fragment="feed(activities, entityType, entityId)" class="detail-card">
     <div class="detail-card-title">
-        <span>Activity & Follow-ups</span>
-        <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;"
-              th:text="${activities.size()} + ' entries'">0 entries</span>
+        <span>Activity &amp; follow-ups</span>
+        <span class="section-note" th:text="${activities.size()} + ' entries'">0 entries</span>
     </div>
 
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+    <div class="flex mb-4">
         <a th:href="@{/communications/new(entityType=${entityType}, entityId=${entityId})}"
-           class="btn btn-sm btn-secondary">📝 Log Activity</a>
+           class="btn btn-sm btn-secondary">
+            <svg class="icon" aria-hidden="true"><use href="#i-note"/></svg>
+            Log activity
+        </a>
         <a th:href="@{/tasks/new(entityType=${entityType}, entityId=${entityId})}"
-           class="btn btn-sm btn-secondary">✅ Add Task</a>
+           class="btn btn-sm btn-secondary">
+            <svg class="icon" aria-hidden="true"><use href="#i-check-square"/></svg>
+            Add task
+        </a>
         <a th:href="@{/email/new(entityType=${entityType}, entityId=${entityId})}"
-           class="btn btn-sm btn-secondary">✉️ Send Email</a>
+           class="btn btn-sm btn-secondary">
+            <svg class="icon" aria-hidden="true"><use href="#i-send"/></svg>
+            Send email
+        </a>
     </div>
 
-    <div th:if="${activities.isEmpty()}" style="font-size: 13px; color: var(--text-faint); line-height: 1.6;">
-        No activity yet. Log a call, add a follow-up task, or send an email to start the timeline.
+    <div th:if="${activities.isEmpty()}" class="empty-state">
+        <svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg>
+        <p>No activity yet. Log a call, add a follow-up task, or send an email to start the timeline.</p>
     </div>
 
     <div class="activity-timeline" th:unless="${activities.isEmpty()}">
         <div th:each="item : ${activities}" class="activity-entry">
-            <div class="activity-icon" th:text="${item.icon}">•</div>
+            <div class="activity-icon">
+                <th:block th:switch="${item.kind}">
+                    <svg th:case="'TASK'" class="icon" aria-hidden="true"><use href="#i-check-square"/></svg>
+                    <svg th:case="'COMMUNICATION'" class="icon" aria-hidden="true"><use href="#i-note"/></svg>
+                    <svg th:case="*" class="icon" aria-hidden="true"><use href="#i-inbox"/></svg>
+                </th:block>
+            </div>
             <div class="activity-body">
                 <div class="activity-heading">
-                    <span th:if="${item.path != null}">
-                        <a th:href="${item.path}" style="color: var(--text); font-weight: 600;"
-                           th:text="${item.title}">Activity</a>
-                    </span>
-                    <span th:unless="${item.path != null}" style="color: var(--text); font-weight: 600;"
-                          th:text="${item.title}">Activity</span>
-                    <span class="badge" th:classappend="${item.badgeClass}"
+                    <a th:if="${item.path != null}" th:href="${item.path}" th:text="${item.title}">Activity</a>
+                    <strong th:unless="${item.path != null}" th:text="${item.title}">Activity</strong>
+                    <span class="badge badge-neutral" th:classappend="${item.badgeClass}"
                           th:text="${item.statusLabel}">Status</span>
                 </div>
                 <div th:if="${item.detail != null and !item.detail.isEmpty()}"
@@ -47,9 +58,11 @@
         </div>
     </div>
 
-    <div style="margin-top: 12px; font-size: 12px; color: var(--text-faint);">
-        <a th:href="@{/tasks(entityType=${entityType}, entityId=${entityId})}"
-           style="color: var(--accent-light);">View all tasks for this record →</a>
+    <div class="section-note mt-3">
+        <a class="list-link" th:href="@{/tasks(entityType=${entityType}, entityId=${entityId})}">
+            View all tasks for this record
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+        </a>
     </div>
 </div>
 
