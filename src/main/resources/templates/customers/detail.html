@@ -147,28 +147,8 @@
                     </a>
                 </div>
 
-                <!-- Tasks Placeholder (Phase 4) -->
-                <div class="placeholder-section">
-                    <div class="placeholder-icon">✅</div>
-                    <div class="placeholder-content">
-                        <h4>Tasks & Follow-up Reminders (Coming in Phase 4)</h4>
-                        <p>
-                            Assign follow-up tasks linked to this customer, track due dates and priority levels,
-                            and receive automated daily email digests.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Communication Log Placeholder (Phase 4) -->
-                <div class="placeholder-section">
-                    <div class="placeholder-icon">💬</div>
-                    <div class="placeholder-content">
-                        <h4>Communication & Email History (Coming in Phase 4)</h4>
-                        <p>
-                            Log calls, meetings, notes, and send real emails directly from the CRM with automatic activity logging.
-                        </p>
-                    </div>
-                </div>
+                <!-- Tasks + communication history (Phase 4) -->
+                <div th:replace="~{fragments/activity :: feed(${activity}, ${entityType}, ${entityId})}"></div>
             </div>
 
         </div>

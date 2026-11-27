@@ -171,14 +171,8 @@
                 </div>
             </div>
 
-            <!-- Phase 4 placeholder -->
-            <div class="placeholder-section">
-                <div class="placeholder-icon">✅</div>
-                <div class="placeholder-content">
-                    <h4>Tasks & Communication History (Coming in Phase 4)</h4>
-                    <p>Follow-up tasks and logged calls/emails for this deal will appear here.</p>
-                </div>
-            </div>
+            <!-- Tasks + communication history (Phase 4) -->
+            <div th:replace="~{fragments/activity :: feed(${activity}, ${entityType}, ${entityId})}"></div>
 
         </div>
 

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title=${task.title} + ' — Task')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='tasks')}"></div>
+
+<main class="main-content">
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span>✓</span><span th:text="${successMessage}">Success message</span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span><span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <div class="page-header">
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <h1 class="page-title" th:text="${task.title}">Task title</h1>
+                <span class="badge" th:classappend="${task.status.badgeClass}"
+                      th:text="${task.status.displayName}">Pending</span>
+                <span class="badge" th:classappend="${task.priority.badgeClass}"
+                      th:text="${task.priority.displayName}">Medium</span>
+            </div>
+            <p class="page-subtitle" th:text="'Due ' + ${#temporals.format(task.dueAt, 'MMM d, yyyy h:mm a')}">Due date</p>
+        </div>
+        <div class="action-buttons">
+            <a th:href="@{/tasks}" class="btn btn-secondary">← Back to Tasks</a>
+            <a th:href="@{/tasks/{id}/edit(id=${task.id})}" class="btn btn-secondary">✏ Edit</a>
+            <form th:if="${task.status.open}" th:action="@{/tasks/{id}/complete(id=${task.id})}"
+                  method="post" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-success">✓ Mark Complete</button>
+            </form>
+            <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post" style="display: inline;"
+                  onsubmit="return confirm('Delete this task?');">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <div class="detail-card-title"><span>Task Details</span></div>
+            <div class="detail-field-list">
+                <div class="detail-field">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" th:text="${task.status.displayName}">Pending</span>
+                </div>
+                <div class="detail-field">
+                    <span class="detail-label">Priority</span>
+                    <span class="detail-value" th:text="${task.priority.displayName}">Medium</span>
+                </div>
+                <div class="detail-field">
+                    <span class="detail-label">Due Date</span>
+                    <span class="detail-value" th:text="${#temporals.format(task.dueAt, 'MMM d, yyyy h:mm a')}">—</span>
+                </div>
+                <div class="detail-field">
+                    <span class="detail-label">Completed At</span>
+                    <span class="detail-value"
+                          th:text="${task.completedAt != null ? #temporals.format(task.completedAt, 'MMM d, yyyy h:mm a') : '—'}">—</span>
+                </div>
+                <div class="detail-field">
+                    <span class="detail-label">Assigned To</span>
+                    <span class="detail-value" th:text="${task.assignedTo != null ? task.assignedTo.name : '—'}">Rep</span>
+                </div>
+                <div class="detail-field">
+                    <span class="detail-label">Created By</span>
+                    <span class="detail-value" th:text="${task.createdBy != null ? task.createdBy.name : '—'}">Rep</span>
+                </div>
+                <div class="detail-field full-width">
+                    <span class="detail-label">Description</span>
+                    <span class="detail-value" th:text="${task.description != null ? task.description : '—'}">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="detail-card">
+                <div class="detail-card-title"><span>Linked Record</span></div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;"
+                   th:text="${task.linkedEntityType.displayName}">Customer</p>
+                <div style="font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 14px;"
+                     th:text="${task.linkedEntityName}">Record name</div>
+                <a th:href="${task.linkedEntityType.detailPath(task.linkedEntityId)}"
+                   class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center;">
+                    Open Record →
+                </a>
+                <a th:href="@{/communications/new(entityType=${task.linkedEntityType.name()}, entityId=${task.linkedEntityId})}"
+                   class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center; margin-top: 8px;">
+                    Log Activity on Record
+                </a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

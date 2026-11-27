@@ -8,7 +8,9 @@ import com.crm.entity.User;
 import com.crm.enums.CustomerStatus;
 import com.crm.enums.LeadSource;
 import com.crm.enums.LeadStatus;
+import com.crm.enums.LinkedEntityType;
 import com.crm.enums.Role;
+import com.crm.service.ActivityService;
 import com.crm.service.LeadService;
 import com.crm.service.UserService;
 import jakarta.validation.Valid;
@@ -37,6 +39,7 @@ public class LeadController {
 
     private final LeadService leadService;
     private final UserService userService;
+    private final ActivityService activityService;
 
     // -------------------------------------------------
     // List & Filter
@@ -82,6 +85,9 @@ public class LeadController {
         Lead lead = leadService.findById(id, currentUser);
         model.addAttribute("lead", lead);
         model.addAttribute("availableTransitions", lead.getStatus().getAvailableTransitions());
+        model.addAttribute("activity", activityService.getActivity(LinkedEntityType.LEAD, id, currentUser));
+        model.addAttribute("entityType", LinkedEntityType.LEAD.name());
+        model.addAttribute("entityId", id);
         model.addAttribute("activeMenu", "leads");
         return "leads/detail";
     }

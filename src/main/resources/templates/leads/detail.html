@@ -200,6 +200,9 @@
                 </div>
             </div>
 
+            <!-- Tasks + communication history (Phase 4) -->
+            <div th:replace="~{fragments/activity :: feed(${activity}, ${entityType}, ${entityId})}"></div>
+
         </div>
 
         <!-- Right Column: Assigned Rep & Account Details -->

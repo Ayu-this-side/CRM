@@ -48,11 +48,11 @@
             <div class="stat-value" th:text="${openDeals != null ? openDeals : 0}">0</div>
             <div class="stat-label">Open Deals</div>
         </a>
-        <div class="stat-card">
+        <a th:href="@{/tasks/mine}" class="stat-card" style="text-decoration: none;">
             <span class="stat-icon">✅</span>
-            <div class="stat-value" style="opacity: 0.5;">—</div>
-            <div class="stat-label">Tasks Due (Phase 4)</div>
-        </div>
+            <div class="stat-value" th:text="${openTasks != null ? openTasks : 0}">0</div>
+            <div class="stat-label">My Open Tasks</div>
+        </a>
     </div>
 
     <!-- Quick Navigation / Overview -->

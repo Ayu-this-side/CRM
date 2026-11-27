@@ -2,6 +2,7 @@ package com.crm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * CRM System — Spring Boot Portfolio Project
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Entry point for the application.
  */
 @SpringBootApplication
+@EnableScheduling
 public class CrmApplication {
 
     public static void main(String[] args) {

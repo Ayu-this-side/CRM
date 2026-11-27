@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='Log Activity')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='tasks')}"></div>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Log Activity</h1>
+            <p class="page-subtitle">Record a call, meeting or note against a CRM record.</p>
+        </div>
+        <div><a th:href="${linkedRecord != null ? linkedRecord.path() : '/tasks'}" class="btn btn-secondary">← Back</a></div>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span><span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="@{/communications}" th:object="${communicationDto}" method="post" novalidate>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="type">Interaction Type *</label>
+                    <select id="type" th:field="*{type}" class="form-control">
+                        <option th:each="t : ${types}" th:value="${t}" th:text="${t.displayName}">Note</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" th:field="*{subject}" class="form-control"
+                           th:classappend="${#fields.hasErrors('subject')} ? ' is-invalid' : ''"
+                           placeholder="e.g. Discovery call"/>
+                    <span th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}" class="field-error">Subject too long</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="linkedEntityType">Record Type *</label>
+                    <select id="linkedEntityType" th:field="*{linkedEntityType}" class="form-control"
+                            th:classappend="${#fields.hasErrors('linkedEntityType')} ? ' is-invalid' : ''">
+                        <option value="">— Select type —</option>
+                        <option th:each="et : ${entityTypes}" th:value="${et}" th:text="${et.displayName}">Customer</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('linkedEntityType')}" th:errors="*{linkedEntityType}" class="field-error">Type required</span>
+                </div>
+                <div class="form-group">
+                    <label for="linkedEntityId">Record ID *</label>
+                    <input type="number" id="linkedEntityId" th:field="*{linkedEntityId}" class="form-control"
+                           th:classappend="${#fields.hasErrors('linkedEntityId')} ? ' is-invalid' : ''" placeholder="e.g. 1"/>
+                    <span th:if="${#fields.hasErrors('linkedEntityId')}" th:errors="*{linkedEntityId}" class="field-error">Record required</span>
+                    <small th:if="${linkedRecord != null}" style="font-size: 11.5px; color: var(--accent-light);"
+                           th:text="${linkedRecord.displayName()}">Selected record</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recipientEmail">Related Email (optional)</label>
+                    <input type="email" id="recipientEmail" th:field="*{recipientEmail}" class="form-control"
+                           th:classappend="${#fields.hasErrors('recipientEmail')} ? ' is-invalid' : ''"
+                           placeholder="contact@company.com"/>
+                    <span th:if="${#fields.hasErrors('recipientEmail')}" th:errors="*{recipientEmail}" class="field-error">Invalid email</span>
+                </div>
+            </div>
+
+            <div class="form-row-single">
+                <div class="form-group">
+                    <label for="notes">Notes *</label>
+                    <textarea id="notes" th:field="*{notes}" class="form-control" rows="5"
+                              th:classappend="${#fields.hasErrors('notes')} ? ' is-invalid' : ''"
+                              placeholder="What happened, and what is the next step?"></textarea>
+                    <span th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}" class="field-error">Notes required</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="${linkedRecord != null ? linkedRecord.path() : '/tasks'}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Activity</button>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+</body>
+</html>

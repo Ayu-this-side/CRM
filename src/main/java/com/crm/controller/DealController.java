@@ -4,7 +4,9 @@ import com.crm.dto.DealDto;
 import com.crm.entity.Deal;
 import com.crm.entity.User;
 import com.crm.enums.DealStage;
+import com.crm.enums.LinkedEntityType;
 import com.crm.enums.Role;
+import com.crm.service.ActivityService;
 import com.crm.service.CustomerService;
 import com.crm.service.DealService;
 import com.crm.service.UserService;
@@ -35,6 +37,7 @@ public class DealController {
     private final DealService dealService;
     private final CustomerService customerService;
     private final UserService userService;
+    private final ActivityService activityService;
 
     // -------------------------------------------------
     // List & Filter
@@ -80,6 +83,9 @@ public class DealController {
         model.addAttribute("deal", deal);
         model.addAttribute("transitions", deal.getStage().getAvailableTransitions());
         model.addAttribute("stages", DealStage.values());
+        model.addAttribute("activity", activityService.getActivity(LinkedEntityType.DEAL, id, currentUser));
+        model.addAttribute("entityType", LinkedEntityType.DEAL.name());
+        model.addAttribute("entityId", id);
         model.addAttribute("activeMenu", "deals");
         return "deals/detail";
     }

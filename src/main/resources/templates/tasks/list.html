@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title='Tasks')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='tasks')}"></div>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${personalView} ? 'My Tasks' : 'Tasks'">Tasks</h1>
+            <p class="page-subtitle">Follow-ups and reminders linked to leads, customers and deals.</p>
+        </div>
+        <div class="action-buttons">
+            <a th:if="${!personalView}" th:href="@{/tasks/mine}" class="btn btn-secondary">My Tasks</a>
+            <a th:href="@{/tasks/new}" class="btn btn-primary" id="btn-create-task">
+                <span>+</span> New Task
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span>✓</span><span th:text="${successMessage}">Success message</span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span><span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <div class="toolbar-card">
+        <form th:action="${personalView} ? @{/tasks/mine} : @{/tasks}" method="get" class="filter-form">
+            <div class="filter-input-wrap">
+                <span class="filter-icon">🔍</span>
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control filter-input"
+                       placeholder="Search tasks..."/>
+            </div>
+            <select name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option th:each="st : ${statuses}" th:value="${st}" th:text="${st.displayName}"
+                        th:selected="${currentStatus == st}">Status</option>
+            </select>
+            <select name="priority" class="form-control filter-select">
+                <option value="">All Priorities</option>
+                <option th:each="pr : ${priorities}" th:value="${pr}" th:text="${pr.displayName}"
+                        th:selected="${currentPriority == pr}">Priority</option>
+            </select>
+            <select name="entityType" class="form-control filter-select">
+                <option value="">All Record Types</option>
+                <option th:each="et : ${entityTypes}" th:value="${et}" th:text="${et.displayName}"
+                        th:selected="${currentEntityType == et}">Type</option>
+            </select>
+            <select name="repId" class="form-control filter-select" sec:authorize="hasRole('ADMIN')"
+                    th:if="${!personalView}">
+                <option value="">All Sales Reps</option>
+                <option th:each="rep : ${salesReps}" th:value="${rep.id}" th:text="${rep.name}"
+                        th:selected="${currentRepId == rep.id}">Rep Name</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Filter</button>
+            <a th:href="${personalView} ? '/tasks/mine' : '/tasks'" class="btn btn-secondary"
+               style="color: var(--text-faint);">Reset</a>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Due</th>
+                        <th>Linked To</th>
+                        <th>Assigned To</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${tasksPage.empty}">
+                        <td colspan="7" class="empty-state">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">✅</span>
+                            No tasks found matching your criteria.
+                        </td>
+                    </tr>
+                    <tr th:each="task : ${tasksPage.content}">
+                        <td>
+                            <a th:href="@{/tasks/{id}(id=${task.id})}" style="font-weight: 600; color: var(--text);"
+                               th:text="${task.title}">Task title</a>
+                            <div th:if="${task.description != null}"
+                                 style="font-size: 11.5px; color: var(--text-faint); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                 th:text="${task.description}">Description</div>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${task.priority.badgeClass}"
+                                  th:text="${task.priority.displayName}">Medium</span>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${task.status.badgeClass}"
+                                  th:text="${task.status.displayName}">Pending</span>
+                        </td>
+                        <td style="font-size: 12px; color: var(--text-muted);"
+                            th:text="${#temporals.format(task.dueAt, 'MMM d, yyyy h:mm a')}">Jan 1, 2027</td>
+                        <td>
+                            <a th:href="${task.linkedEntityType.detailPath(task.linkedEntityId)}"
+                               style="font-size: 12.5px; color: var(--accent-light);"
+                               th:text="${task.linkedEntityType.displayName + ': ' + task.linkedEntityName}">Record</a>
+                        </td>
+                        <td style="font-size: 13px;" th:text="${task.assignedTo != null ? task.assignedTo.name : '—'}">Rep</td>
+                        <td style="text-align: right;">
+                            <div class="action-buttons" style="justify-content: flex-end;">
+                                <a th:href="@{/tasks/{id}(id=${task.id})}" class="btn btn-sm btn-secondary">View</a>
+                                <form th:if="${task.status.open}"
+                                      th:action="@{/tasks/{id}/complete(id=${task.id})}"
+                                      method="post" style="display: inline;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-sm btn-success">Done</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-wrapper" th:if="${tasksPage.totalPages > 0}"
+             th:with="basePath=${personalView} ? '/tasks/mine' : '/tasks'">
+            <div th:text="'Showing ' + (${tasksPage.number * tasksPage.size + 1}) + '–' + (${tasksPage.number * tasksPage.size + tasksPage.numberOfElements}) + ' of ' + ${tasksPage.totalElements} + ' tasks'">
+                Showing 1–10 tasks
+            </div>
+            <div class="pagination-nav" th:if="${tasksPage.totalPages > 1}">
+                <a th:if="${!tasksPage.first}"
+                   th:href="@{${basePath}(page=${tasksPage.number - 1}, keyword=${keyword}, status=${currentStatus}, priority=${currentPriority}, entityType=${currentEntityType}, entityId=${currentEntityId}, repId=${currentRepId})}"
+                   class="page-btn">‹</a>
+                <a th:each="p : ${#numbers.sequence(0, tasksPage.totalPages - 1)}"
+                   th:href="@{${basePath}(page=${p}, keyword=${keyword}, status=${currentStatus}, priority=${currentPriority}, entityType=${currentEntityType}, entityId=${currentEntityId}, repId=${currentRepId})}"
+                   class="page-btn" th:classappend="${p == tasksPage.number} ? ' active' : ''"
+                   th:text="${p + 1}">1</a>
+                <a th:if="${!tasksPage.last}"
+                   th:href="@{${basePath}(page=${tasksPage.number + 1}, keyword=${keyword}, status=${currentStatus}, priority=${currentPriority}, entityType=${currentEntityType}, entityId=${currentEntityId}, repId=${currentRepId})}"
+                   class="page-btn">›</a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

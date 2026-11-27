@@ -73,21 +73,22 @@ Audit fixes applied after the initial build, so the "Complete" status is defensi
 
 ---
 
-## Phase 4 — Tasks & Communication Logging
+## Phase 4 — Tasks & Communication Logging (✅ Complete)
 
 **Objective:** Follow-up management and interaction history, plus real email sending.
 
 **Tasks:**
-- `Task` entity with polymorphic link (`linkedEntityType` + `linkedEntityId`) to Lead/Customer/Deal
-- Task CRUD + "My Tasks" personal view per rep, with due date/priority/status
-- `CommunicationLog` entity with same polymorphic linking pattern
-- Manual communication logging (Call/Meeting/Note types) against any lead/customer/deal
-- Spring Mail integration (JavaMailSender) for sending real emails from the CRM; auto-creates matching `EMAIL` log entry on send
-- Dev-mode config toggle: simulate send + log-only when SMTP isn't configured
-- `@Scheduled` daily job: finds due/overdue tasks and emails each rep a digest
-- Chronological activity feed component on Customer/Deal detail pages, combining tasks + communication logs
+- [x] `Task` entity with polymorphic link (`linkedEntityType` + `linkedEntityId`) to Lead/Customer/Deal (V5 migration)
+- [x] Task CRUD + "My Tasks" personal view per rep, with due date/priority/status
+- [x] `CommunicationLog` entity with same polymorphic linking pattern
+- [x] Manual communication logging (Call/Meeting/Note types) against any lead/customer/deal
+- [x] Spring Mail integration (JavaMailSender) for sending real emails from the CRM; auto-creates matching `EMAIL` log entry on send
+- [x] Dev-mode config toggle: simulate send + log-only when SMTP isn't configured
+- [x] `@Scheduled` daily job: finds due/overdue tasks and emails each rep a digest
+- [x] Chronological activity feed component on Lead/Customer/Deal detail pages, combining tasks + communication logs
+- [x] Unit tests (`TaskServiceTest`, `CommunicationLogServiceTest`, `EmailServiceTest`, `TaskDigestSchedulerTest`)
 
-**Exit criteria:** Can create tasks tied to any entity, see them in "My Tasks," send a real email logged automatically, and confirm the scheduled digest job fires correctly (test via short interval override).
+**Exit criteria:** Can create tasks tied to any entity, see them in "My Tasks," send a real email logged automatically, and confirm the scheduled digest job fires correctly (test via short interval override). (Verified ✅ — 61 tests passing; HTTP smoke test covered task CRUD/completion, rep scoping, activity logging, email simulation with auto-logging, and a 15-second digest cron override.)
 
 ---
 

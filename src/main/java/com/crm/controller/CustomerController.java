@@ -4,7 +4,9 @@ import com.crm.dto.CustomerDto;
 import com.crm.entity.Customer;
 import com.crm.entity.User;
 import com.crm.enums.CustomerStatus;
+import com.crm.enums.LinkedEntityType;
 import com.crm.enums.Role;
+import com.crm.service.ActivityService;
 import com.crm.service.CustomerService;
 import com.crm.service.DealService;
 import com.crm.service.UserService;
@@ -35,6 +37,7 @@ public class CustomerController {
     private final CustomerService customerService;
     private final UserService userService;
     private final DealService dealService;
+    private final ActivityService activityService;
 
     // -------------------------------------------------
     // List & Filter
@@ -77,6 +80,9 @@ public class CustomerController {
         Customer customer = customerService.findById(id, currentUser);
         model.addAttribute("customer", customer);
         model.addAttribute("customerDeals", dealService.findByCustomer(id, currentUser));
+        model.addAttribute("activity", activityService.getActivity(LinkedEntityType.CUSTOMER, id, currentUser));
+        model.addAttribute("entityType", LinkedEntityType.CUSTOMER.name());
+        model.addAttribute("entityId", id);
         model.addAttribute("activeMenu", "customers");
         return "customers/detail";
     }

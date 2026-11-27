@@ -51,6 +51,12 @@
                 <span class="nav-icon">💰</span>
                 <span>Deals</span>
             </a>
+            <a th:href="@{/tasks}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'tasks'} ? ' active' : ''">
+                <span class="nav-icon">✅</span>
+                <span>Tasks</span>
+            </a>
         </div>
 
         <!-- Administration section (ADMIN only) -->

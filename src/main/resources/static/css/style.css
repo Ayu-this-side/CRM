@@ -1049,3 +1049,71 @@ select.form-control { cursor: pointer; }
   line-height: 1.5;
 }
 
+/* =====================================================
+   Activity feed (Tasks + Communication logs)
+   ===================================================== */
+.activity-timeline {
+  position: relative;
+  padding-left: 4px;
+}
+
+.activity-entry {
+  display: flex;
+  gap: 12px;
+  padding: 0 0 18px 0;
+  position: relative;
+}
+
+.activity-entry:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.activity-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+}
+
+.activity-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+}
+
+.activity-detail {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: 5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 5px;
+}
+
