@@ -4,7 +4,7 @@
 <!--
   Reusable sidebar navigation fragment.
   Usage: <div th:replace="~{fragments/navbar :: sidebar(activeMenu='dashboard')}"></div>
-  activeMenu values: 'dashboard', 'users'  (more added in later phases)
+  activeMenu values: 'dashboard', 'leads', 'customers', 'deals', 'users'
 -->
 <body>
 
@@ -45,10 +45,12 @@
                 <span class="nav-icon">🤝</span>
                 <span>Customers</span>
             </a>
-            <span class="nav-item" style="opacity:0.35;cursor:default;" title="Available in Phase 3">
+            <a th:href="@{/deals}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'deals'} ? ' active' : ''">
                 <span class="nav-icon">💰</span>
                 <span>Deals</span>
-            </span>
+            </a>
         </div>
 
         <!-- Administration section (ADMIN only) -->

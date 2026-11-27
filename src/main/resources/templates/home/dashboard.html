@@ -25,6 +25,9 @@
             <a th:href="@{/customers/new}" class="btn btn-secondary">
                 <span>+</span> New Customer
             </a>
+            <a th:href="@{/deals/new}" class="btn btn-secondary">
+                <span>+</span> New Deal
+            </a>
         </div>
     </div>
 
@@ -40,11 +43,11 @@
             <div class="stat-value" th:text="${activeCustomers != null ? activeCustomers : 0}">0</div>
             <div class="stat-label">Active Customers</div>
         </a>
-        <div class="stat-card">
+        <a th:href="@{/deals}" class="stat-card" style="text-decoration: none;">
             <span class="stat-icon">💰</span>
-            <div class="stat-value" style="opacity: 0.5;">—</div>
-            <div class="stat-label">Open Deals (Phase 3)</div>
-        </div>
+            <div class="stat-value" th:text="${openDeals != null ? openDeals : 0}">0</div>
+            <div class="stat-label">Open Deals</div>
+        </a>
         <div class="stat-card">
             <span class="stat-icon">✅</span>
             <div class="stat-value" style="opacity: 0.5;">—</div>

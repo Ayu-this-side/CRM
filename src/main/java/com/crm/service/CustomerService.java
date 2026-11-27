@@ -7,6 +7,7 @@ import com.crm.enums.CustomerStatus;
 import com.crm.enums.Role;
 import com.crm.exception.ResourceNotFoundException;
 import com.crm.repository.CustomerRepository;
+import com.crm.repository.DealRepository;
 import com.crm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Service layer for Customer management.
@@ -27,6 +30,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
+    private final DealRepository dealRepository;
 
     // -------------------------------------------------
     // Queries
@@ -43,6 +47,15 @@ public class CustomerService {
                 ? "%" + keyword.trim().toLowerCase() + "%"
                 : null;
         return customerRepository.searchCustomers(pattern, status, effectiveRepId, pageable);
+    }
+
+    /** Customers available for deal assignment in dropdowns, scoped by role. */
+    @Transactional(readOnly = true)
+    public List<Customer> findSelectableCustomers(User currentUser) {
+        if (currentUser.getRole() == Role.ADMIN) {
+            return customerRepository.findAllByOrderByNameAsc();
+        }
+        return customerRepository.findByAssignedRepIdOrderByNameAsc(currentUser.getId());
     }
 
     @Transactional(readOnly = true)
@@ -127,6 +140,10 @@ public class CustomerService {
         if (customer.getOriginLead() != null) {
             throw new IllegalStateException(
                     "Converted customers cannot be deleted: the link to the source lead must be preserved.");
+        }
+        if (dealRepository.countByCustomerId(id) > 0) {
+            throw new IllegalStateException(
+                    "This customer has deals and cannot be deleted. Close or keep the deal history intact.");
         }
 
         customerRepository.delete(customer);

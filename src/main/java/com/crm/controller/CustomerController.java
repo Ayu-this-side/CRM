@@ -6,6 +6,7 @@ import com.crm.entity.User;
 import com.crm.enums.CustomerStatus;
 import com.crm.enums.Role;
 import com.crm.service.CustomerService;
+import com.crm.service.DealService;
 import com.crm.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final UserService userService;
+    private final DealService dealService;
 
     // -------------------------------------------------
     // List & Filter
@@ -74,6 +76,7 @@ public class CustomerController {
                          Model model) {
         Customer customer = customerService.findById(id, currentUser);
         model.addAttribute("customer", customer);
+        model.addAttribute("customerDeals", dealService.findByCustomer(id, currentUser));
         model.addAttribute("activeMenu", "customers");
         return "customers/detail";
     }

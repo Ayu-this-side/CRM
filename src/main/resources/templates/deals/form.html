@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title=${editMode ? 'Edit Deal' : 'New Deal'})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='deals')}"></div>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${editMode ? 'Edit Deal' : 'Create New Deal'}">New Deal</h1>
+            <p class="page-subtitle" th:text="${editMode ? 'Update the opportunity details. Closed deals cannot be edited.' : 'Track a sales opportunity against a customer.'}">
+                Enter deal details.
+            </p>
+        </div>
+        <div>
+            <a th:href="${editMode ? '/deals/' + dealId : '/deals'}" class="btn btn-secondary">← Back</a>
+        </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="${editMode ? '/deals/' + dealId : '/deals'}"
+              th:object="${dealDto}"
+              method="post"
+              novalidate>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- Row 1: Title & Customer -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Deal Title *</label>
+                    <input type="text"
+                           id="title"
+                           th:field="*{title}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('title')} ? ' is-invalid' : ''"
+                           placeholder="e.g. Annual software license"/>
+                    <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="field-error">Title is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerId">Customer *</label>
+                    <select id="customerId"
+                            th:field="*{customerId}"
+                            class="form-control"
+                            th:classappend="${#fields.hasErrors('customerId')} ? ' is-invalid' : ''">
+                        <option value="">— Select customer —</option>
+                        <option th:each="cust : ${customers}"
+                                th:value="${cust.id}"
+                                th:text="${cust.name}">Customer</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}" class="field-error">Customer is required</span>
+                </div>
+            </div>
+
+            <!-- Row 2: Value & Stage -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="value">Deal Value *</label>
+                    <input type="number"
+                           id="value"
+                           step="0.01"
+                           min="0.01"
+                           th:field="*{value}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('value')} ? ' is-invalid' : ''"
+                           placeholder="0.00"/>
+                    <span th:if="${#fields.hasErrors('value')}" th:errors="*{value}" class="field-error">Valid value required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="stage">Stage *</label>
+                    <select id="stage"
+                            th:field="*{stage}"
+                            class="form-control"
+                            th:classappend="${#fields.hasErrors('stage')} ? ' is-invalid' : ''">
+                        <option th:each="st : ${stages}"
+                                th:value="${st}"
+                                th:text="${st.displayName}"
+                                th:disabled="${st.closed}">Prospecting</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('stage')}" th:errors="*{stage}" class="field-error">Stage is required</span>
+                    <small style="font-size: 11.5px; color: var(--text-faint);">
+                        Won/Lost are set through the stage actions on the deal detail page.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Row 3: Probability & Expected close date -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="probability">Probability % (editable)</label>
+                    <input type="number"
+                           id="probability"
+                           min="0"
+                           max="100"
+                           th:field="*{probability}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('probability')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('probability')}" th:errors="*{probability}" class="field-error">0–100 only</span>
+                    <small style="font-size: 11.5px; color: var(--text-faint);">
+                        Suggested from the stage; change it if your confidence differs.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="expectedCloseDate">Expected Close Date</label>
+                    <input type="date"
+                           id="expectedCloseDate"
+                           th:field="*{expectedCloseDate}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('expectedCloseDate')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('expectedCloseDate')}" th:errors="*{expectedCloseDate}" class="field-error">Invalid date</span>
+                </div>
+            </div>
+
+            <!-- Row 4: Description -->
+            <div class="form-row-single">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description"
+                              th:field="*{description}"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Scope, notes, next steps..."></textarea>
+                    <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="field-error">Description too long</span>
+                </div>
+            </div>
+
+            <!-- Row 5: Assigned rep (Admin only) -->
+            <div class="form-row-single" sec:authorize="hasRole('ADMIN')">
+                <div class="form-group">
+                    <label for="assignedRepId">Assigned Sales Rep</label>
+                    <select id="assignedRepId"
+                            th:field="*{assignedRepId}"
+                            class="form-control">
+                        <option value="">— Inherit from customer / assign to me —</option>
+                        <option th:each="rep : ${salesReps}"
+                                th:value="${rep.id}"
+                                th:text="${rep.name + ' (' + rep.email + ')'}">Rep Name</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a th:href="${editMode ? '/deals/' + dealId : '/deals'}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="btn-save-deal">
+                    <span th:text="${editMode ? 'Save Changes' : 'Create Deal'}">Save</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+
+<script th:inline="none">
+    // Probability auto-suggestion by stage. A manual edit wins from then on.
+    (function () {
+        var defaults = { PROSPECTING: 10, PROPOSAL: 40, NEGOTIATION: 70, WON: 100, LOST: 0 };
+        var stage = document.getElementById('stage');
+        var probability = document.getElementById('probability');
+        if (!stage || !probability) return;
+
+        var manuallyEdited = false;
+        probability.addEventListener('input', function () { manuallyEdited = true; });
+        stage.addEventListener('change', function () {
+            if (!manuallyEdited && defaults[stage.value] !== undefined) {
+                probability.value = defaults[stage.value];
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.crm.enums.CustomerStatus;
 import com.crm.enums.LeadStatus;
 import com.crm.enums.Role;
 import com.crm.repository.CustomerRepository;
+import com.crm.repository.DealRepository;
 import com.crm.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,9 @@ class CustomerServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DealRepository dealRepository;
 
     @InjectMocks
     private CustomerService customerService;
@@ -164,5 +168,22 @@ class CustomerServiceTest {
 
         assertThat(updated.getAssignedRep()).isEqualTo(salesRep1);
         verify(userRepository, never()).findByIdAndRoleAndEnabledTrue(any(), any());
+    }
+
+    @Test
+    @DisplayName("deleteCustomer: a customer with deals is kept to preserve deal history")
+    void deleteCustomer_withDeals_throws() {
+        Customer customer = new Customer();
+        customer.setId(43L);
+        customer.setName("Client With Deals");
+        customer.setAssignedRep(salesRep1);
+
+        when(customerRepository.findById(43L)).thenReturn(Optional.of(customer));
+        when(dealRepository.countByCustomerId(43L)).thenReturn(2L);
+
+        assertThatThrownBy(() -> customerService.deleteCustomer(43L, salesRep1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("has deals");
+        verify(customerRepository, never()).delete(any());
     }
 }

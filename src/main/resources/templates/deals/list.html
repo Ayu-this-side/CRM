@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title='Deals')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='deals')}"></div>
+
+<main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Deals</h1>
+            <p class="page-subtitle">Track opportunities from prospecting through to close.</p>
+        </div>
+        <div class="action-buttons">
+            <a th:href="@{/deals/new}" class="btn btn-primary" id="btn-create-deal">
+                <span>+</span> New Deal
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span>✓</span>
+        <span th:text="${successMessage}">Success message</span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <!-- Search & Filter Toolbar -->
+    <div class="toolbar-card">
+        <form th:action="@{/deals}" method="get" class="filter-form">
+            <div class="filter-input-wrap">
+                <span class="filter-icon">🔍</span>
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       class="form-control filter-input"
+                       placeholder="Search deal title, description, customer..."/>
+            </div>
+
+            <select name="stage" class="form-control filter-select">
+                <option value="">All Stages</option>
+                <option th:each="st : ${stages}"
+                        th:value="${st}"
+                        th:text="${st.displayName}"
+                        th:selected="${currentStage == st}">Stage</option>
+            </select>
+
+            <select name="customerId" class="form-control filter-select">
+                <option value="">All Customers</option>
+                <option th:each="cust : ${customers}"
+                        th:value="${cust.id}"
+                        th:text="${cust.name}"
+                        th:selected="${currentCustomerId == cust.id}">Customer</option>
+            </select>
+
+            <select name="repId" class="form-control filter-select" sec:authorize="hasRole('ADMIN')">
+                <option value="">All Sales Reps</option>
+                <option th:each="rep : ${salesReps}"
+                        th:value="${rep.id}"
+                        th:text="${rep.name}"
+                        th:selected="${currentRepId == rep.id}">Rep Name</option>
+            </select>
+
+            <button type="submit" class="btn btn-secondary">Filter</button>
+            <a th:href="@{/deals}" class="btn btn-secondary" style="color: var(--text-faint);">Reset</a>
+        </form>
+    </div>
+
+    <!-- Deals Table Card -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Deal</th>
+                        <th>Customer</th>
+                        <th>Value</th>
+                        <th>Stage</th>
+                        <th>Probability</th>
+                        <th>Expected Close</th>
+                        <th>Owner</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${dealsPage.empty}">
+                        <td colspan="8" class="empty-state">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">💰</span>
+                            No deals found matching your criteria.
+                        </td>
+                    </tr>
+                    <tr th:each="deal : ${dealsPage.content}">
+                        <td>
+                            <a th:href="@{/deals/{id}(id=${deal.id})}"
+                               style="font-weight: 600; color: var(--text);"
+                               th:text="${deal.title}">Deal title</a>
+                            <div th:if="${deal.description != null}"
+                                 style="font-size: 11.5px; color: var(--text-faint); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                 th:text="${deal.description}">Description</div>
+                        </td>
+                        <td>
+                            <a th:href="@{/customers/{id}(id=${deal.customer.id})}"
+                               style="font-size: 13px; color: var(--accent-light);"
+                               th:text="${deal.customer.name}">Customer name</a>
+                        </td>
+                        <td style="font-weight: 600;" th:text="'₹' + ${#numbers.formatDecimal(deal.value, 1, 2)}">₹0.00</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${deal.stage.badgeClass}"
+                                  th:text="${deal.stage.displayName}">Prospecting</span>
+                        </td>
+                        <td style="font-size: 13px;" th:text="${deal.probability} + '%'">10%</td>
+                        <td style="font-size: 12px; color: var(--text-muted);"
+                            th:text="${deal.expectedCloseDate != null ? #temporals.format(deal.expectedCloseDate, 'MMM d, yyyy') : '—'}">Jan 1, 2027</td>
+                        <td>
+                            <div th:if="${deal.assignedRep != null}" class="user-cell">
+                                <div class="user-avatar-sm"
+                                     th:text="${deal.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
+                                <span style="font-size: 13px;" th:text="${deal.assignedRep.name}">Rep Name</span>
+                            </div>
+                            <span th:unless="${deal.assignedRep != null}" style="color: var(--text-faint);">—</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="action-buttons" style="justify-content: flex-end;">
+                                <a th:href="@{/deals/{id}(id=${deal.id})}" class="btn btn-sm btn-secondary">View</a>
+                                <a th:if="${deal.stage.open}"
+                                   th:href="@{/deals/{id}/edit(id=${deal.id})}"
+                                   class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-wrapper" th:if="${dealsPage.totalPages > 0}">
+            <div th:if="${!dealsPage.empty}"
+                 th:text="'Showing ' + (${dealsPage.number * dealsPage.size + 1}) + '–' + (${dealsPage.number * dealsPage.size + dealsPage.numberOfElements}) + ' of ' + ${dealsPage.totalElements} + ' deals'">
+                Showing 1–10 of 20 deals
+            </div>
+            <div th:if="${dealsPage.empty}">No deals to display</div>
+
+            <div class="pagination-nav" th:if="${dealsPage.totalPages > 1}">
+                <a th:if="${!dealsPage.first}"
+                   th:href="@{/deals(page=${dealsPage.number - 1}, keyword=${keyword}, stage=${currentStage}, customerId=${currentCustomerId}, repId=${currentRepId})}"
+                   class="page-btn">‹</a>
+
+                <a th:each="p : ${#numbers.sequence(0, dealsPage.totalPages - 1)}"
+                   th:href="@{/deals(page=${p}, keyword=${keyword}, stage=${currentStage}, customerId=${currentCustomerId}, repId=${currentRepId})}"
+                   class="page-btn"
+                   th:classappend="${p == dealsPage.number} ? ' active' : ''"
+                   th:text="${p + 1}">1</a>
+
+                <a th:if="${!dealsPage.last}"
+                   th:href="@{/deals(page=${dealsPage.number + 1}, keyword=${keyword}, stage=${currentStage}, customerId=${currentCustomerId}, repId=${currentRepId})}"
+                   class="page-btn">›</a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

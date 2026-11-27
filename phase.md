@@ -54,20 +54,22 @@ Audit fixes applied after the initial build, so the "Complete" status is defensi
 
 ---
 
-## Phase 3 — Sales / Deal Pipeline
+## Phase 3 — Sales / Deal Pipeline (✅ Complete)
 
 **Objective:** Track opportunities against customers through to close.
 
 **Tasks:**
-- `Deal` entity + Flyway migration + repository/service/controller (full CRUD)
-- Stage pipeline (`PROSPECTING → PROPOSAL → NEGOTIATION → WON / LOST`) with stage-change actions
-- Won/Lost handling (Lost requires a reason field; Won sets actual close date)
-- Deal list view with stage filter + pagination
-- Deal detail page linked from Customer detail page
-- Probability % auto-suggestion by stage (editable override)
-- Rep-scoped visibility consistent with Phase 2
+- [x] `Deal` entity + Flyway migration (`V4__init_deals.sql`) + repository/service/controller (full CRUD)
+- [x] Stage pipeline (`PROSPECTING → PROPOSAL → NEGOTIATION → WON / LOST`) with stage-change actions
+- [x] Won/Lost handling (Lost requires a reason field; Won sets actual close date and 100% probability)
+- [x] Deal list view with keyword search, stage/customer/rep filters + pagination
+- [x] Deal detail page with pipeline stepper, linked from Customer detail/list pages
+- [x] Probability % auto-suggestion by stage (editable override, validated 0–100)
+- [x] Rep-scoped visibility consistent with Phase 2 (Rep sees own deals, Admin sees all)
+- [x] Dashboard "Open Deals" KPI; customers with deals are protected from deletion
+- [x] Unit tests (`DealStageTest`, `DealServiceTest`) covering transitions, outcomes, assignment and scoping
 
-**Exit criteria:** Can create a deal against a customer, move it through pipeline stages, and close it Won or Lost with correct data captured.
+**Exit criteria:** Can create a deal against a customer, move it through pipeline stages, and close it Won or Lost with correct data captured. (Verified ✅ — 39 tests passing; HTTP smoke test covered create/edit, all stage transitions, Won/Lost guards, and rep scoping.)
 
 ---
 

@@ -2,6 +2,7 @@ package com.crm.controller;
 
 import com.crm.entity.User;
 import com.crm.service.CustomerService;
+import com.crm.service.DealService;
 import com.crm.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,14 +20,17 @@ public class HomeController {
 
     private final LeadService leadService;
     private final CustomerService customerService;
+    private final DealService dealService;
 
     @GetMapping("/")
     public String dashboard(@AuthenticationPrincipal User currentUser, Model model) {
         long totalLeads = leadService.countTotalLeads(currentUser);
         long activeCustomers = customerService.countActiveCustomers(currentUser);
+        long openDeals = dealService.countOpenDeals(currentUser);
 
         model.addAttribute("totalLeads", totalLeads);
         model.addAttribute("activeCustomers", activeCustomers);
+        model.addAttribute("openDeals", openDeals);
         model.addAttribute("activeMenu", "dashboard");
         return "home/dashboard";
     }
