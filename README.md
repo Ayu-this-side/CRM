@@ -13,7 +13,7 @@ relational data modeling, layered architecture, Spring Security, Flyway, Thymele
 |---|---|
 | Language | Java 21 target (builds on JDK 21+) |
 | Framework | Spring Boot 3.3.4 |
-| UI | Thymeleaf + Security Extras + Chart.js (locally hosted) |
+| UI | Thymeleaf + Security Extras + custom "Black / Green Console" design system + Chart.js (locally hosted) |
 | Data | Spring Data JPA / Hibernate |
 | Database | PostgreSQL |
 | Migrations | Flyway |
@@ -148,9 +148,40 @@ http://localhost:8081
 
 ---
 
+## UI & Design System
+
+The authenticated workspace uses a **"Black / Green Console"** design: a near-black canvas
+(`#050806`) with emerald (`#22C55E`) structural accents and mint (`#86EFAC`) signals, Fira Sans for
+UI text and Fira Code for numbers/identifiers/micro-labels. Dense, ruled sections replace floating
+card grids; status is always a labelled pill (dot + text), never colour alone.
+
+- **Source of truth:** `design-system/crm-system/` — `MASTER.md` (global rules),
+  `pages/workspace.md` (authoritative page overrides), `tokens.json` (W3C design tokens),
+  `tokens.css` (CSS custom properties) and `preview.html`.
+- **Layout:** persistent navigation rail with grouped sections and a compact command bar on desktop;
+  an off-canvas drawer on small screens. Detail pages use a two-column editorial split.
+- **Icons:** locally defined SVG sprite at `templates/fragments/icons.html` — no icon CDN.
+- **Progressive enhancement (`static/js/app.js`):** mobile nav drawer (Escape/backdrop to close),
+  accessible validation-error summary that focuses and links to invalid fields, password reveal,
+  native `<dialog>` confirmation for destructive actions, and client-side row filtering on tables
+  marked `data-client-filter`. All features degrade gracefully without JS and respect
+  `prefers-reduced-motion`.
+- **Accessibility:** skip link, `aria-current` on the active nav item, labelled icon buttons,
+  screen-reader-only table captions, visible focus rings, ≥44px touch targets, and charts paired
+  with data tables.
+- Fonts load from Google Fonts with system fallbacks; all charts and icons are served locally.
+
+---
+
 ## Project Structure
 
 ```
+design-system/crm-system/
+├── MASTER.md                   # Global UI rules (palette, type, spacing, components)
+├── pages/workspace.md          # Authoritative overrides for authenticated pages
+├── tokens.json / tokens.css    # W3C design tokens + CSS variables
+└── preview.html                # Static design preview
+
 src/main/java/com/crm/
 ├── CrmApplication.java
 ├── config/
@@ -233,10 +264,12 @@ src/main/resources/
 │   ├── V4__init_deals.sql               # Deals table, FKs, stage/value/probability checks & indexes
 │   └── V5__init_tasks_and_communications.sql # Tasks + communication logs, checks & indexes
 ├── static/
-│   ├── css/style.css                # Dark mode design system, toolbar, activity timeline, report grid
-│   └── js/chart.umd.min.js           # Locally hosted Chart.js 4.4.8 (no CDN at runtime)
+│   ├── css/style.css                # Black/green console design system, layout, tables, charts
+│   └── js/
+│       ├── app.js                   # Mobile nav, error summary, dialogs, password reveal, row filter
+│       └── chart.umd.min.js         # Locally hosted Chart.js 4.4.8 (no CDN at runtime)
 └── templates/
-    ├── fragments/              # Reusable head, sidebar & activity feed
+    ├── fragments/              # Reusable head, icon sprite, navigation rail & activity feed
     ├── auth/                   # login, access-denied
     ├── home/                   # dashboard with KPI cards & navigation shortcuts
     ├── admin/users/            # user management list & form
@@ -330,9 +363,12 @@ src/test/java/com/crm/
 | **3 — Deal Pipeline** | ✅ Complete + hardened | Deal entity + V4 migration, stage pipeline, Won/Lost outcomes, probability, linked from Customer |
 | **4 — Tasks & Comms** | ✅ Complete + hardened | V5 migration, Task CRUD/My Tasks, activity logging, mail with dev fallback, scheduled digest, activity feed |
 | **5 — Reporting & Polish** | ✅ Complete + verified | Role-scoped Chart.js dashboard, conversion/win/revenue metrics, per-rep table, `@DataJpaTest` coverage; 71 tests passing |
+| **UI Refresh** | ✅ Shipped | Black/green console design system, responsive navigation, SVG icon sprite, accessible forms/dialogs and progressive enhancements |
 
 ## Project Status
 
 All phases are complete. The application is ready for local demonstration: start it with
 `.\mvnw.cmd spring-boot:run`, sign in with one of the demo accounts above, and open
 `/reports` for the analytics dashboard. See `phase.md` for the original phase-by-phase plan and exit criteria.
+The UI is documented in `design-system/crm-system/`; page-level rules there override the global
+master file when you extend the interface.
