@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--
+  Reusable sidebar navigation fragment.
+  Usage: <div th:replace="~{fragments/navbar :: sidebar(activeMenu='dashboard')}"></div>
+  activeMenu values: 'dashboard', 'users'  (more added in later phases)
+-->
+<body>
+
+<aside th:fragment="sidebar(activeMenu)" class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-text">CRM Pro</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+        <!-- Overview section -->
+        <div class="nav-section">
+            <span class="nav-section-label">Overview</span>
+            <a th:href="@{/}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <!-- CRM section -->
+        <div class="nav-section">
+            <span class="nav-section-label">CRM</span>
+            <a th:href="@{/leads}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'leads'} ? ' active' : ''">
+                <span class="nav-icon">🎯</span>
+                <span>Leads</span>
+            </a>
+            <a th:href="@{/customers}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'customers'} ? ' active' : ''">
+                <span class="nav-icon">🤝</span>
+                <span>Customers</span>
+            </a>
+            <span class="nav-item" style="opacity:0.35;cursor:default;" title="Available in Phase 3">
+                <span class="nav-icon">💰</span>
+                <span>Deals</span>
+            </span>
+        </div>
+
+        <!-- Administration section (ADMIN only) -->
+        <div class="nav-section" sec:authorize="hasRole('ADMIN')">
+            <span class="nav-section-label">Administration</span>
+            <a th:href="@{/admin/users}"
+               class="nav-item"
+               th:classappend="${activeMenu == 'users'} ? ' active' : ''">
+                <span class="nav-icon">👥</span>
+                <span>Users</span>
+            </a>
+        </div>
+
+    </nav>
+
+    <!-- User info + logout -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar"
+                 th:text="${#authentication.principal.name.substring(0,1).toUpperCase()}">A</div>
+            <div class="user-details">
+                <span class="user-name"
+                      th:text="${#authentication.principal.name}">Admin</span>
+                <span class="user-role"
+                      th:text="${#authentication.principal.role.displayName}">Admin</span>
+            </div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="flex-shrink:0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout" title="Sign out">↩</button>
+        </form>
+    </div>
+
+</aside>
+
+</body>
+</html>

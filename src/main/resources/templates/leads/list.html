@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title='Leads')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='leads')}"></div>
+
+<main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Leads</h1>
+            <p class="page-subtitle">Track, qualify, and convert prospective sales opportunities.</p>
+        </div>
+        <div class="action-buttons">
+            <a th:href="@{/leads/new}" class="btn btn-primary" id="btn-create-lead">
+                <span>+</span> New Lead
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span>✓</span>
+        <span th:text="${successMessage}">Success message</span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <!-- Search & Filter Toolbar -->
+    <div class="toolbar-card">
+        <form th:action="@{/leads}" method="get" class="filter-form">
+            <div class="filter-input-wrap">
+                <span class="filter-icon">🔍</span>
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       class="form-control filter-input"
+                       placeholder="Search name, company, email..."/>
+            </div>
+
+            <select name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option th:each="st : ${statuses}"
+                        th:value="${st}"
+                        th:text="${st.displayName}"
+                        th:selected="${currentStatus == st}">Status</option>
+            </select>
+
+            <select name="source" class="form-control filter-select">
+                <option value="">All Sources</option>
+                <option th:each="src : ${sources}"
+                        th:value="${src}"
+                        th:text="${src.displayName}"
+                        th:selected="${currentSource == src}">Source</option>
+            </select>
+
+            <select name="repId" class="form-control filter-select" sec:authorize="hasRole('ADMIN')">
+                <option value="">All Sales Reps</option>
+                <option th:each="rep : ${salesReps}"
+                        th:value="${rep.id}"
+                        th:text="${rep.name}"
+                        th:selected="${currentRepId == rep.id}">Rep Name</option>
+            </select>
+
+            <button type="submit" class="btn btn-secondary">Filter</button>
+            <a th:href="@{/leads}" class="btn btn-secondary" style="color: var(--text-faint);">Reset</a>
+        </form>
+    </div>
+
+    <!-- Leads Table Card -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Lead Name</th>
+                        <th>Company</th>
+                        <th>Contact</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Assigned Rep</th>
+                        <th>Created</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${leadsPage.empty}">
+                        <td colspan="8" class="empty-state">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">🎯</span>
+                            No leads found matching your criteria.
+                        </td>
+                    </tr>
+                    <tr th:each="lead : ${leadsPage.content}">
+                        <td>
+                            <a th:href="@{/leads/{id}(id=${lead.id})}"
+                               style="font-weight: 600; color: var(--text);"
+                               th:text="${lead.name}">Jane Doe</a>
+                        </td>
+                        <td th:text="${lead.company != null ? lead.company : '—'}">Acme Corp</td>
+                        <td>
+                            <div style="font-size: 13px;" th:text="${lead.email}">jane@acme.com</div>
+                            <div style="font-size: 11.5px; color: var(--text-faint);"
+                                 th:if="${lead.phone}" th:text="${lead.phone}">+1 555-0199</div>
+                        </td>
+                        <td>
+                            <span style="font-size: 12px; color: var(--text-muted);"
+                                  th:text="${lead.source.displayName}">Website</span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${lead.status.badgeClass}"
+                                  th:text="${lead.status.displayName}">New</span>
+                        </td>
+                        <td>
+                            <div th:if="${lead.assignedRep != null}" class="user-cell">
+                                <div class="user-avatar-sm"
+                                     th:text="${lead.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
+                                <span style="font-size: 13px;" th:text="${lead.assignedRep.name}">Rep Name</span>
+                            </div>
+                            <span th:unless="${lead.assignedRep != null}" style="color: var(--text-faint);">—</span>
+                        </td>
+                        <td style="font-size: 12px; color: var(--text-muted);"
+                            th:text="${#temporals.format(lead.createdAt, 'MMM d, yyyy')}">Oct 23, 2026</td>
+                        <td style="text-align: right;">
+                            <div class="action-buttons" style="justify-content: flex-end;">
+                                <a th:if="${lead.status.name() == 'QUALIFIED'}"
+                                   th:href="@{/leads/{id}/convert(id=${lead.id})}"
+                                   class="btn btn-sm btn-success"
+                                   title="Convert this lead into a Customer">
+                                    Convert
+                                </a>
+                                <a th:href="@{/leads/{id}(id=${lead.id})}"
+                                   class="btn btn-sm btn-secondary">
+                                    View
+                                </a>
+                                <a th:if="${lead.status.name() != 'CONVERTED'}"
+                                   th:href="@{/leads/{id}/edit(id=${lead.id})}"
+                                   class="btn btn-sm btn-secondary">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-wrapper" th:if="${leadsPage.totalPages > 0}">
+            <div th:if="${!leadsPage.empty}"
+                 th:text="'Showing ' + (${leadsPage.number * leadsPage.size + 1}) + '–' + (${leadsPage.number * leadsPage.size + leadsPage.numberOfElements}) + ' of ' + ${leadsPage.totalElements} + ' leads'">
+                Showing 1–10 of 25 leads
+            </div>
+            <div th:if="${leadsPage.empty}">No leads to display</div>
+
+            <div class="pagination-nav" th:if="${leadsPage.totalPages > 1}">
+                <!-- Previous Button -->
+                <a th:if="${!leadsPage.first}"
+                   th:href="@{/leads(page=${leadsPage.number - 1}, keyword=${keyword}, status=${currentStatus}, source=${currentSource}, repId=${currentRepId})}"
+                   class="page-btn">‹</a>
+
+                <!-- Page numbers -->
+                <a th:each="p : ${#numbers.sequence(0, leadsPage.totalPages - 1)}"
+                   th:href="@{/leads(page=${p}, keyword=${keyword}, status=${currentStatus}, source=${currentSource}, repId=${currentRepId})}"
+                   class="page-btn"
+                   th:classappend="${p == leadsPage.number} ? ' active' : ''"
+                   th:text="${p + 1}">1</a>
+
+                <!-- Next Button -->
+                <a th:if="${!leadsPage.last}"
+                   th:href="@{/leads(page=${leadsPage.number + 1}, keyword=${keyword}, status=${currentStatus}, source=${currentSource}, repId=${currentRepId})}"
+                   class="page-btn">›</a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

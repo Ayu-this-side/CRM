@@ -1,0 +1,42 @@
+# =========================================
+# Maven / Java build output
+# =========================================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# =========================================
+# IDEs and editors
+# =========================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# =========================================
+# OS files
+# =========================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================================
+# Logs and temporary files
+# =========================================
+*.log
+*.tmp
+*.swp
+*~
+
+# =========================================
+# Local configuration / secrets
+# Commit only the shared application.properties.
+# =========================================
+application-local.properties
+application-*.local.properties
+.env

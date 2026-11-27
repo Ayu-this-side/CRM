@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title='Convert Lead to Customer')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='leads')}"></div>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Convert Lead to Customer</h1>
+            <p class="page-subtitle">
+                Promote prospective lead <strong th:text="${lead.name}">Lead Name</strong> to an official Customer account.
+            </p>
+        </div>
+        <div>
+            <a th:href="@{/leads/{id}(id=${lead.id})}" class="btn btn-secondary">← Back to Lead</a>
+        </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <!-- Conversion Explainer Card -->
+    <div class="alert alert-success" style="margin-bottom: 24px;">
+        <span style="font-size: 20px;">ℹ</span>
+        <div>
+            <strong>Lead → Customer Lifecycle Transition</strong>
+            <p style="font-size: 13px; margin-top: 4px; line-height: 1.5;">
+                Converting this lead creates a new Customer entity, pre-populated with contact details.
+                The origin lead record will be permanently linked and marked as <span class="badge badge-green">Converted</span>.
+            </p>
+        </div>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="@{/leads/{id}/convert(id=${lead.id})}"
+              th:object="${convertDto}"
+              method="post"
+              novalidate>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{leadId}"/>
+
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                Customer Profile Details
+            </h3>
+
+            <!-- Row 1: Name & Company -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Customer / Contact Name *</label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('name')}"
+                          th:errors="*{name}"
+                          class="field-error">Name is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company / Account Name</label>
+                    <input type="text"
+                           id="company"
+                           th:field="*{company}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('company')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('company')}"
+                          th:errors="*{company}"
+                          class="field-error">Invalid company</span>
+                </div>
+            </div>
+
+            <!-- Row 2: Email & Phone -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Primary Email *</label>
+                    <input type="email"
+                           id="email"
+                           th:field="*{email}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('email')}"
+                          th:errors="*{email}"
+                          class="field-error">Valid email is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text"
+                           id="phone"
+                           th:field="*{phone}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"/>
+                    <span th:if="${#fields.hasErrors('phone')}"
+                          th:errors="*{phone}"
+                          class="field-error">Invalid phone</span>
+                </div>
+            </div>
+
+            <!-- Row 3: Address -->
+            <div class="form-row-single">
+                <div class="form-group">
+                    <label for="address">Billing / Company Address</label>
+                    <textarea id="address"
+                              th:field="*{address}"
+                              class="form-control"
+                              rows="3"
+                              placeholder="e.g. 100 Main St, Suite 400, San Francisco, CA 94105"></textarea>
+                </div>
+            </div>
+
+            <!-- Row 4: Customer Status & Assigned Rep -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="status">Initial Customer Status *</label>
+                    <select id="status"
+                            th:field="*{status}"
+                            class="form-control">
+                        <option th:each="st : ${statuses}"
+                                th:value="${st}"
+                                th:text="${st.displayName}">Active</option>
+                    </select>
+                </div>
+
+                <div class="form-group" sec:authorize="hasRole('ADMIN')">
+                    <label for="assignedRepId">Assigned Account Rep</label>
+                    <select id="assignedRepId"
+                            th:field="*{assignedRepId}"
+                            class="form-control">
+                        <option value="">— Use current lead's rep —</option>
+                        <option th:each="rep : ${salesReps}"
+                                th:value="${rep.id}"
+                                th:text="${rep.name + ' (' + rep.email + ')'}">Rep Name</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a th:href="@{/leads/{id}(id=${lead.id})}" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success" id="btn-confirm-convert">
+                    ✓ Confirm Conversion to Customer
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+
+</body>
+</html>

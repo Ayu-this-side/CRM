@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title=${editMode ? 'Edit User' : 'New User'})}"></head>
+<body class="app-body">
+
+<!-- Sidebar -->
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='users')}"></div>
+
+<!-- Main content -->
+<main class="main-content">
+
+    <!-- Page header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${editMode ? 'Edit User' : 'New User'}">New User</h1>
+            <p class="page-subtitle"
+               th:text="${editMode ? 'Update account details. Leave password blank to keep existing.' : 'Create a new Admin or Sales Rep account.'}">
+                Create a new user account.
+            </p>
+        </div>
+        <a th:href="@{/admin/users}" class="btn btn-secondary">← Back to Users</a>
+    </div>
+
+    <!-- Inline error (from service, e.g. duplicate email) -->
+    <div th:if="${errorMessage}" class="alert alert-danger" id="formError">
+        ✗ <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Form card -->
+    <div class="card form-card">
+        <!--
+          POST to /admin/users        → createUser
+          POST to /admin/users/{id}   → updateUser
+        -->
+        <form th:action="${editMode} ? @{/admin/users/{id}(id=${userId})} : @{/admin/users}"
+              method="post"
+              th:object="${userDto}"
+              id="userForm"
+              novalidate>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- Row 1: Name + Email -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? ' is-invalid' : ''"
+                           placeholder="e.g. Jane Smith"
+                           autocomplete="name"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email"
+                           id="email"
+                           th:field="*{email}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                           placeholder="jane@company.com"
+                           autocomplete="email"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+            </div>
+
+            <!-- Row 2: Password + Role -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">
+                        Password
+                        <span th:if="${!editMode}">*</span>
+                        <span th:if="${editMode}" class="label-hint">(blank = keep existing)</span>
+                    </label>
+                    <input type="password"
+                           id="password"
+                           th:field="*{password}"
+                           class="form-control"
+                           placeholder="••••••••"
+                           autocomplete="new-password"
+                           th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role *</label>
+                    <select id="role"
+                            th:field="*{role}"
+                            class="form-control"
+                            th:classappend="${#fields.hasErrors('role')} ? ' is-invalid' : ''">
+                        <option value="">— Select a role —</option>
+                        <option th:each="r : ${roles}"
+                                th:value="${r}"
+                                th:text="${r.displayName}">Role</option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <a th:href="@{/admin/users}" class="btn btn-secondary" id="cancelBtn">Cancel</a>
+                <button type="submit"
+                        class="btn btn-primary"
+                        id="submitBtn"
+                        th:text="${editMode ? 'Update User' : 'Create User'}">
+                    Create User
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+</body>
+</html>

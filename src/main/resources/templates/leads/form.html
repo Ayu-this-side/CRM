@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title=${editMode ? 'Edit Lead' : 'New Lead'})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='leads')}"></div>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title" th:text="${editMode ? 'Edit Lead' : 'Create New Lead'}">New Lead</h1>
+            <p class="page-subtitle" th:text="${editMode ? 'Update prospective customer details and status.' : 'Capture a new inbound or outbound sales opportunity.'}">
+                Enter prospect information.
+            </p>
+        </div>
+        <div>
+            <a th:href="${editMode ? '/leads/' + leadId : '/leads'}" class="btn btn-secondary">
+                ← Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="${editMode ? '/leads/' + leadId : '/leads'}"
+              th:object="${leadDto}"
+              method="post"
+              novalidate>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- Row 1: Name & Company -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Lead Name *</label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? ' is-invalid' : ''"
+                           placeholder="e.g. Sarah Jenkins"/>
+                    <span th:if="${#fields.hasErrors('name')}"
+                          th:errors="*{name}"
+                          class="field-error">Name is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company Name</label>
+                    <input type="text"
+                           id="company"
+                           th:field="*{company}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('company')} ? ' is-invalid' : ''"
+                           placeholder="e.g. Acme Corporation"/>
+                    <span th:if="${#fields.hasErrors('company')}"
+                          th:errors="*{company}"
+                          class="field-error">Invalid company</span>
+                </div>
+            </div>
+
+            <!-- Row 2: Email & Phone -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email"
+                           id="email"
+                           th:field="*{email}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('email')} ? ' is-invalid' : ''"
+                           placeholder="e.g. sarah@acme.com"/>
+                    <span th:if="${#fields.hasErrors('email')}"
+                          th:errors="*{email}"
+                          class="field-error">Valid email required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text"
+                           id="phone"
+                           th:field="*{phone}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"
+                           placeholder="e.g. +1 (555) 234-5678"/>
+                    <span th:if="${#fields.hasErrors('phone')}"
+                          th:errors="*{phone}"
+                          class="field-error">Invalid phone</span>
+                </div>
+            </div>
+
+            <!-- Row 3: Source & Status -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="source">Lead Source *</label>
+                    <select id="source"
+                            th:field="*{source}"
+                            class="form-control"
+                            th:classappend="${#fields.hasErrors('source')} ? ' is-invalid' : ''">
+                        <option value="">— Select Source —</option>
+                        <option th:each="src : ${sources}"
+                                th:value="${src}"
+                                th:text="${src.displayName}">Website</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('source')}"
+                          th:errors="*{source}"
+                          class="field-error">Source is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Lead Status *</label>
+                    <select id="status"
+                            th:field="*{status}"
+                            class="form-control"
+                            th:classappend="${#fields.hasErrors('status')} ? ' is-invalid' : ''">
+                        <option th:each="st : ${statuses}"
+                                th:if="${st.name() != 'CONVERTED'}"
+                                th:value="${st}"
+                                th:text="${st.displayName}">New</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('status')}"
+                          th:errors="*{status}"
+                          class="field-error">Status is required</span>
+                    <span class="label-hint">Conversion to Customer is done via the dedicated conversion action.</span>
+                </div>
+            </div>
+
+            <!-- Row 4: Assigned Rep (Admin Only) -->
+            <div class="form-row-single" sec:authorize="hasRole('ADMIN')">
+                <div class="form-group">
+                    <label for="assignedRepId">Assigned Sales Rep</label>
+                    <select id="assignedRepId"
+                            th:field="*{assignedRepId}"
+                            class="form-control">
+                        <option value="">— Unassigned (or assign to yourself) —</option>
+                        <option th:each="rep : ${salesReps}"
+                                th:value="${rep.id}"
+                                th:text="${rep.name + ' (' + rep.email + ')'}">Rep Name</option>
+                    </select>
+                    <span class="label-hint">Admins can assign leads to any team member.</span>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a th:href="${editMode ? '/leads/' + leadId : '/leads'}" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" id="btn-save-lead">
+                    <span th:text="${editMode ? 'Save Changes' : 'Create Lead'}">Save</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+
+</body>
+</html>

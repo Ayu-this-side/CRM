@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(title='Customers')}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/navbar :: sidebar(activeMenu='customers')}"></div>
+
+<main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Customers</h1>
+            <p class="page-subtitle">Manage customer accounts, relationships, and deal histories.</p>
+        </div>
+        <div class="action-buttons">
+            <a th:href="@{/customers/new}" class="btn btn-primary" id="btn-create-customer">
+                <span>+</span> New Customer
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span>✓</span>
+        <span th:text="${successMessage}">Success message</span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span>⚠</span>
+        <span th:text="${errorMessage}">Error message</span>
+    </div>
+
+    <!-- Search & Filter Toolbar -->
+    <div class="toolbar-card">
+        <form th:action="@{/customers}" method="get" class="filter-form">
+            <div class="filter-input-wrap">
+                <span class="filter-icon">🔍</span>
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       class="form-control filter-input"
+                       placeholder="Search customer name, company, email..."/>
+            </div>
+
+            <select name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option th:each="st : ${statuses}"
+                        th:value="${st}"
+                        th:text="${st.displayName}"
+                        th:selected="${currentStatus == st}">Status</option>
+            </select>
+
+            <select name="repId" class="form-control filter-select" sec:authorize="hasRole('ADMIN')">
+                <option value="">All Account Reps</option>
+                <option th:each="rep : ${salesReps}"
+                        th:value="${rep.id}"
+                        th:text="${rep.name}"
+                        th:selected="${currentRepId == rep.id}">Rep Name</option>
+            </select>
+
+            <button type="submit" class="btn btn-secondary">Filter</button>
+            <a th:href="@{/customers}" class="btn btn-secondary" style="color: var(--text-faint);">Reset</a>
+        </form>
+    </div>
+
+    <!-- Customers Table Card -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer / Contact</th>
+                        <th>Company</th>
+                        <th>Contact Info</th>
+                        <th>Status</th>
+                        <th>Origin Lead</th>
+                        <th>Account Rep</th>
+                        <th>Client Since</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${customersPage.empty}">
+                        <td colspan="8" class="empty-state">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">🤝</span>
+                            No customers found matching your criteria.
+                        </td>
+                    </tr>
+                    <tr th:each="cust : ${customersPage.content}">
+                        <td>
+                            <a th:href="@{/customers/{id}(id=${cust.id})}"
+                               style="font-weight: 600; color: var(--text);"
+                               th:text="${cust.name}">Alice Johnson</a>
+                        </td>
+                        <td th:text="${cust.company != null ? cust.company : '—'}">TechCorp Inc</td>
+                        <td>
+                            <div style="font-size: 13px;" th:text="${cust.email}">alice@techcorp.com</div>
+                            <div style="font-size: 11.5px; color: var(--text-faint);"
+                                 th:if="${cust.phone}" th:text="${cust.phone}">+1 555-0144</div>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${cust.status.badgeClass}"
+                                  th:text="${cust.status.displayName}">Active</span>
+                        </td>
+                        <td>
+                            <a th:if="${cust.originLead != null}"
+                               th:href="@{/leads/{id}(id=${cust.originLead.id})}"
+                               class="badge badge-purple"
+                               style="text-decoration: none;"
+                               title="Click to view origin lead">
+                                Lead #<span th:text="${cust.originLead.id}">1</span>
+                            </a>
+                            <span th:unless="${cust.originLead != null}" style="color: var(--text-faint); font-size: 12px;">Direct</span>
+                        </td>
+                        <td>
+                            <div th:if="${cust.assignedRep != null}" class="user-cell">
+                                <div class="user-avatar-sm"
+                                     th:text="${cust.assignedRep.name.substring(0,1).toUpperCase()}">R</div>
+                                <span style="font-size: 13px;" th:text="${cust.assignedRep.name}">Rep Name</span>
+                            </div>
+                            <span th:unless="${cust.assignedRep != null}" style="color: var(--text-faint);">—</span>
+                        </td>
+                        <td style="font-size: 12px; color: var(--text-muted);"
+                            th:text="${#temporals.format(cust.createdAt, 'MMM d, yyyy')}">Oct 23, 2026</td>
+                        <td style="text-align: right;">
+                            <div class="action-buttons" style="justify-content: flex-end;">
+                                <a th:href="@{/customers/{id}(id=${cust.id})}"
+                                   class="btn btn-sm btn-secondary">
+                                    View
+                                </a>
+                                <a th:href="@{/customers/{id}/edit(id=${cust.id})}"
+                                   class="btn btn-sm btn-secondary">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-wrapper" th:if="${customersPage.totalPages > 0}">
+            <div th:if="${!customersPage.empty}"
+                 th:text="'Showing ' + (${customersPage.number * customersPage.size + 1}) + '–' + (${customersPage.number * customersPage.size + customersPage.numberOfElements}) + ' of ' + ${customersPage.totalElements} + ' customers'">
+                Showing 1–10 of 20 customers
+            </div>
+            <div th:if="${customersPage.empty}">No customers to display</div>
+
+            <div class="pagination-nav" th:if="${customersPage.totalPages > 1}">
+                <!-- Previous Button -->
+                <a th:if="${!customersPage.first}"
+                   th:href="@{/customers(page=${customersPage.number - 1}, keyword=${keyword}, status=${currentStatus}, repId=${currentRepId})}"
+                   class="page-btn">‹</a>
+
+                <!-- Page numbers -->
+                <a th:each="p : ${#numbers.sequence(0, customersPage.totalPages - 1)}"
+                   th:href="@{/customers(page=${p}, keyword=${keyword}, status=${currentStatus}, repId=${currentRepId})}"
+                   class="page-btn"
+                   th:classappend="${p == customersPage.number} ? ' active' : ''"
+                   th:text="${p + 1}">1</a>
+
+                <!-- Next Button -->
+                <a th:if="${!customersPage.last}"
+                   th:href="@{/customers(page=${customersPage.number + 1}, keyword=${keyword}, status=${currentStatus}, repId=${currentRepId})}"
+                   class="page-btn">›</a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>
